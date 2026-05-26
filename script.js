@@ -244,18 +244,9 @@ async function handleAuth(e) {
     e.preventDefault();
     const password = document.getElementById('auth-password').value;
     
-    // Хеширование пин-кода (SHA-256)
-    const msgUint8 = new TextEncoder().encode(password);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    // Хеш от строки "47474"
-    const expectedHash = '7ab14532e35f29db42d76d4db7a92fb9cdd6bc8d2495d46bbdbf472d62ea13d0';
-    
-    if (hashHex === expectedHash) {
+    if (password === '47474') {
         localStorage.setItem('okoAuth', 'true');
-        loginUser('Сотрудник', 'admin');
+        loginUser('Админ', 'admin');
     } else {
         showAuthError('Неверный пин-код');
     }
@@ -460,6 +451,9 @@ function showDashboard() {
     // Закрываем мобильное меню если открыто
     if (window.innerWidth < 768) {
         document.getElementById('sidebar').classList.add('hidden');
+        document.getElementById('sidebar').classList.remove('flex');
+        const overlay = document.getElementById('mobile-overlay');
+        if(overlay) overlay.classList.add('hidden');
     }
 }
 
@@ -482,6 +476,9 @@ function showHistory() {
     // Закрываем мобильное меню
     if (window.innerWidth < 768) {
         document.getElementById('sidebar').classList.add('hidden');
+        document.getElementById('sidebar').classList.remove('flex');
+        const overlay = document.getElementById('mobile-overlay');
+        if(overlay) overlay.classList.add('hidden');
     }
 }
 
@@ -596,6 +593,9 @@ function showCategory(category, btnElement) {
     // Закрываем мобильное меню
     if (window.innerWidth < 768) {
         document.getElementById('sidebar').classList.add('hidden');
+        document.getElementById('sidebar').classList.remove('flex');
+        const overlay = document.getElementById('mobile-overlay');
+        if(overlay) overlay.classList.add('hidden');
     }
 }
 
@@ -1056,12 +1056,18 @@ function saveItem() {
                 }
                 closeItemModal();
                 loadServerData();
+            }).catch(err => {
+                console.error("Ошибка при обновлении:", err);
+                alert("Ошибка сохранения: " + err.message);
             });
         } else {
             db.collection('items').add(itemData).then((docRef) => {
                 logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
                 closeItemModal();
                 loadServerData();
+            }).catch(err => {
+                console.error("Ошибка при добавлении:", err);
+                alert("Ошибка сохранения: " + err.message);
             });
         }
     };

@@ -327,7 +327,7 @@
 
                 <!-- CATEGORY / TABLE VIEW -->
                 <div id="view-category"
-                    class="hidden h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    class="hidden flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
                     <!-- Table Actions -->
                     <div
@@ -347,7 +347,7 @@
                     </div>
 
                     <!-- Table Container -->
-                    <div class="flex-1 overflow-auto custom-scrollbar relative">
+                    <div class="overflow-x-auto relative">
                         <!-- Loading / Empty State -->
                         <div id="table-empty-state"
                             class="hidden absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
@@ -374,7 +374,7 @@
                 </div>
 
                 <!-- HISTORY VIEW -->
-                <div id="view-history" class="hidden h-full flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-slide-up">
+                <div id="view-history" class="hidden flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-slide-up">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
                             <i data-lucide="history" class="w-5 h-5 text-brand-primary"></i>
@@ -384,7 +384,7 @@
                             <i data-lucide="rotate-cw" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar" id="history-container">
+                    <div class="p-4 md:p-6" id="history-container">
                         <!-- History items will be injected here -->
                     </div>
                 </div>
