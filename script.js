@@ -903,6 +903,7 @@ function openAddItemModal() {
     document.getElementById('item-chars').value = '';
     document.getElementById('item-width').value = '';
     document.getElementById('item-height').value = '';
+    document.getElementById('item-qty').value = '';
     document.getElementById('item-price').value = '';
     document.getElementById('item-note').value = '';
     
@@ -914,6 +915,7 @@ function openAddItemModal() {
 
     const modal = document.getElementById('item-modal');
     modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     try { lucide.createIcons(); } catch(e) {}
     // Небольшая задержка для анимации
     setTimeout(() => {
@@ -956,6 +958,7 @@ function editItem(item) {
 
     const modal = document.getElementById('item-modal');
     modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     try { lucide.createIcons(); } catch(e) {}
     // Небольшая задержка для анимации
     setTimeout(() => {
@@ -970,6 +973,7 @@ function closeItemModal() {
     document.getElementById('item-modal-content').classList.add('scale-95');
     setTimeout(() => {
         modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
     }, 300);
 }
 
@@ -1041,13 +1045,20 @@ function saveItem() {
 
     const saveToDb = (imageUrl) => {
         if (imageUrl !== undefined) {
-            if (imageUrl === null) itemData.image = firebase.firestore.FieldValue.delete();
-            else itemData.image = imageUrl;
+            if (imageUrl === null && isEditing) {
+                itemData.image = firebase.firestore.FieldValue.delete();
+            } else if (imageUrl === null && !isEditing) {
+                // Don't set image field for new items when photo removed
+            } else if (imageUrl) {
+                itemData.image = imageUrl;
+            }
         } else if (isEditing) {
             const oldItem = allItems.find(i => String(i.id) === String(id));
             if (oldItem && oldItem['Фото']) itemData.image = oldItem['Фото'];
         }
 
+        // Add username
+        itemData.username = 'Админ';
         if (isEditing) {
             db.collection('items').doc(String(id)).update(itemData).then(() => {
                 if (qtyDiff !== 0) {
