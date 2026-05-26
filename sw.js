@@ -1,5 +1,5 @@
 // Oko Sklad — Service Worker
-const CACHE_NAME = 'oko-sklad-v1';
+const CACHE_NAME = 'oko-sklad-v2';
 const STATIC_ASSETS = [
   '/',
   '/style.css',
