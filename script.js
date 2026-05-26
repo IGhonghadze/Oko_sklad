@@ -1019,12 +1019,11 @@ function saveItem() {
     console.log("=== saveItem() ВЫЗВАН ===");
     
     try {
-        // Получаем кнопку сохранения
         const saveBtn = document.getElementById('btn-save-item');
         
         // Проверяем Firebase
         if (typeof db === 'undefined' || !db) {
-            showToast('Ошибка: база данных Firebase не инициализирована. Проверьте интернет.', 'error');
+            showToast('Ошибка: Firebase не подключена. Проверьте интернет.', 'error');
             return;
         }
 
@@ -1041,10 +1040,7 @@ function saveItem() {
         const qtyField = parseFloat(qtyEl.value) || 0;
         const priceField = parseFloat(priceEl.value) || 0;
 
-        // Валидация с визуальной обратной связью
-        let isValid = true;
-        
-        // Сброс ошибок
+        // Валидация
         [nameEl, qtyEl, priceEl].forEach(el => {
             el.style.borderColor = '';
             el.style.boxShadow = '';
@@ -1055,12 +1051,10 @@ function saveItem() {
             nameEl.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
             nameEl.focus();
             showToast('Введите наименование товара!', 'error');
-            isValid = false;
+            return;
         }
-        
-        if (!isValid) return;
 
-        // Показываем состояние загрузки на кнопке
+        // Показываем загрузку
         if (saveBtn) {
             saveBtn.disabled = true;
             saveBtn.innerHTML = '<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle><path d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" fill="currentColor"></path></svg> Сохранение...';
@@ -1080,6 +1074,8 @@ function saveItem() {
             username: 'Админ'
         };
 
+        console.log("itemData:", JSON.stringify(itemData));
+
         const oldQty = isEditing ? (allItems.find(i => String(i.id) === String(id))?._qty || 0) : 0;
         const qtyDiff = itemData.quantity - oldQty;
 
@@ -1092,6 +1088,51 @@ function saveItem() {
             }
         };
 
+        // --- Оптимистичное обновление UI (СРАЗУ, не дожидаясь Firebase) ---
+        const optimisticUpdate = () => {
+            try {
+                if (!isEditing) {
+                    const ni = {
+                        id: 'tmp_' + Date.now(),
+                        'Наименование ': itemData.name,
+                        'Наименование': itemData.name,
+                        'Характеристики': itemData.characteristics,
+                        'Ширина': itemData.width,
+                        'Длина/Высота': itemData.height,
+                        'Кол-во': itemData.quantity,
+                        'Цена': itemData.price,
+                        'Стоимость': itemData.total,
+                        'Примечание': itemData.note,
+                        'Фото': '',
+                        '_qty': itemData.quantity,
+                        '_price': itemData.price,
+                        '_total': itemData.total,
+                        '_category': itemData.category
+                    };
+                    if (!parsedData[itemData.category]) {
+                        parsedData[itemData.category] = { headers: ["Наименование", "Характеристики", "Ширина", "Длина/Высота", "Кол-во", "Цена", "Стоимость", "Примечание", "Фото"], items: [] };
+                    }
+                    parsedData[itemData.category].items.unshift(ni);
+                    allItems.unshift(ni);
+                    if (currentCategory === itemData.category) {
+                        tableData = [...parsedData[currentCategory].items];
+                        renderTable(currentCategory);
+                    }
+                    buildNavigation();
+                    updateDashboard();
+                }
+            } catch(e) { console.warn("optimistic update error", e); }
+        };
+
+        // --- Обёртка Firebase с таймаутом ---
+        const withTimeout = (promise, ms) => {
+            let timeoutId;
+            const timeout = new Promise((_, reject) => {
+                timeoutId = setTimeout(() => reject(new Error('TIMEOUT')), ms);
+            });
+            return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
+        };
+
         const doSave = (imageUrl) => {
             try {
                 if (imageUrl) {
@@ -1100,86 +1141,73 @@ function saveItem() {
                     itemData.image = firebase.firestore.FieldValue.delete();
                 }
 
-                // Оптимистичное обновление UI
-                const updateUI = () => {
-                    try { closeItemModal(); } catch (e) {}
-                    try {
-                        if (!isEditing) {
-                            const ni = {
-                                id: 'tmp_' + Date.now(),
-                                'Наименование ': itemData.name,
-                                'Наименование': itemData.name,
-                                'Характеристики': itemData.characteristics,
-                                'Ширина': itemData.width,
-                                'Длина/Высота': itemData.height,
-                                'Кол-во': itemData.quantity,
-                                'Цена': itemData.price,
-                                'Стоимость': itemData.total,
-                                'Примечание': itemData.note,
-                                'Фото': itemData.image || '',
-                                '_qty': itemData.quantity,
-                                '_price': itemData.price,
-                                '_total': itemData.total,
-                                '_category': itemData.category
-                            };
-                            if (!parsedData[itemData.category]) {
-                                parsedData[itemData.category] = { headers: ["Наименование", "Характеристики", "Ширина", "Длина/Высота", "Кол-во", "Цена", "Стоимость", "Примечание", "Фото"], items: [] };
-                            }
-                            parsedData[itemData.category].items.unshift(ni);
-                            allItems.unshift(ni);
-                            if (currentCategory === itemData.category) {
-                                tableData = [...parsedData[currentCategory].items];
-                                renderTable(currentCategory);
-                            }
-                        }
-                    } catch(e) { console.warn("UI update error", e); }
-                    showToast(isEditing ? 'Товар обновлён!' : 'Товар добавлен!', 'success');
-                    resetBtn();
-                    try { loadServerData(); } catch(e) { console.warn(e); }
-                };
+                // СНАЧАЛА закрываем модалку и обновляем UI
+                try { closeItemModal(); } catch(e) {}
+                optimisticUpdate();
+                resetBtn();
+                showToast('Сохранение в базу...', 'info');
 
+                console.log("Отправляю в Firebase...", isEditing ? "UPDATE " + id : "ADD");
+
+                let firebasePromise;
                 if (isEditing) {
-                    db.collection('items').doc(String(id)).update(itemData)
-                        .then(() => {
-                            if (qtyDiff !== 0) {
-                                logTransaction(itemData.name, itemData.category, qtyDiff > 0 ? 'income' : 'outcome', qtyDiff, itemData.quantity, itemData.note);
-                            }
-                            updateUI();
-                        })
-                        .catch(err => {
-                            showToast('Ошибка при обновлении: ' + err.message, 'error');
-                            resetBtn();
-                        });
+                    firebasePromise = db.collection('items').doc(String(id)).update(itemData);
                 } else {
-                    db.collection('items').add(itemData)
-                        .then(() => {
-                            logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
-                            updateUI();
-                        })
-                        .catch(err => {
-                            showToast('Ошибка при добавлении: ' + err.message, 'error');
-                            resetBtn();
-                        });
+                    firebasePromise = db.collection('items').add(itemData);
                 }
+
+                // Таймаут 10 секунд
+                withTimeout(firebasePromise, 10000)
+                    .then((result) => {
+                        console.log("✅ Firebase: сохранено успешно!", result);
+                        try {
+                            if (isEditing && qtyDiff !== 0) {
+                                logTransaction(itemData.name, itemData.category, qtyDiff > 0 ? 'income' : 'outcome', qtyDiff, itemData.quantity, itemData.note);
+                            } else if (!isEditing) {
+                                logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
+                            }
+                        } catch(e) { console.warn("logTransaction error:", e); }
+
+                        showToast(isEditing ? '✅ Товар обновлён!' : '✅ Товар добавлен!', 'success');
+                        // Перезагрузить данные с сервера
+                        try { loadServerData(); } catch(e) { console.warn(e); }
+                    })
+                    .catch(err => {
+                        console.error("❌ Firebase ошибка:", err);
+                        if (err.message === 'TIMEOUT') {
+                            showToast('⏰ Firebase не ответил за 10 сек. Данные могут сохраниться позже.', 'error');
+                        } else {
+                            showToast('❌ Ошибка Firebase: ' + err.message, 'error');
+                        }
+                        // Перезагрузить на случай если данные всё же пришли
+                        try { loadServerData(); } catch(e) {}
+                    });
+
             } catch (innerErr) {
-                showToast('Сбой перед отправкой в БД: ' + innerErr.message, 'error');
+                console.error("doSave error:", innerErr);
+                showToast('Сбой: ' + innerErr.message, 'error');
                 resetBtn();
             }
         };
 
+        // Загрузка фото (если есть)
         const fileInput = document.getElementById('item-file-input');
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
             try {
                 const file = fileInput.files[0];
                 const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
-                storageRef.put(file).then((snapshot) => {
-                    snapshot.ref.getDownloadURL().then(url => doSave(url));
-                }).catch(err => {
-                    showToast('Ошибка загрузки фото: ' + err.message, 'error');
+                withTimeout(
+                    storageRef.put(file).then(snap => snap.ref.getDownloadURL()),
+                    15000
+                )
+                .then(url => doSave(url))
+                .catch(err => {
+                    console.error("Photo upload error:", err);
+                    showToast('Фото не загрузилось, сохраняю без фото', 'error');
                     doSave(null);
                 });
             } catch (storageErr) {
-                showToast('Ошибка инициализации хранилища: ' + storageErr.message, 'error');
+                console.error("Storage init error:", storageErr);
                 doSave(null);
             }
         } else {
@@ -1188,7 +1216,6 @@ function saveItem() {
     } catch (e) {
         showToast('Критическая ошибка: ' + (e.message || e), 'error');
         console.error('saveItem error:', e);
-        // Восстановим кнопку
         const saveBtn = document.getElementById('btn-save-item');
         if (saveBtn) {
             saveBtn.disabled = false;
