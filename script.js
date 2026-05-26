@@ -31,8 +31,8 @@ const categoryIcons = {
 
 // --- Инициализация ---
 document.addEventListener('DOMContentLoaded', () => {
-    lucide.createIcons();
-    updateDate();
+    try { try { lucide.createIcons(); } catch(e) {} } catch(e) { console.warn('Lucide icons failed', e); }
+    try { updateDate(); } catch(e) {}
 
     // Проверка авторизации
     checkAuthStatus();
@@ -293,7 +293,7 @@ function togglePasswordVisibility() {
         pwdInput.type = 'password';
         pwdIcon.setAttribute('data-lucide', 'eye');
     }
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 async function handleAuth(e) {
@@ -373,7 +373,6 @@ function logout() {
     const authScreen = document.getElementById('auth-screen');
     authScreen.classList.remove('hidden');
     setTimeout(() => { authScreen.style.opacity = '1'; }, 10);
-    switchAuthTab('login');
 }
 
 // --- UI Логика: Навигация и Дашборд ---
@@ -407,7 +406,7 @@ function buildNavigation() {
         navContainer.appendChild(btn);
     }
 
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 function getCategorySum(category) {
@@ -493,7 +492,7 @@ function updateDashboard() {
         grid.appendChild(card);
     });
 
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 function showDashboard() {
@@ -612,7 +611,7 @@ function renderHistory(data) {
         `;
         container.appendChild(div);
     });
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 // --- Таблица и Сортировка ---
@@ -794,7 +793,7 @@ function renderTable(categoryName) {
         document.getElementById('table-sum').textContent = formatCurrency(displaySum);
     }
 
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 // --- Поиск ---
@@ -971,7 +970,7 @@ function openAddItemModal() {
 
     const modal = document.getElementById('item-modal');
     modal.classList.remove('hidden');
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
     // Небольшая задержка для анимации
     setTimeout(() => {
         modal.classList.remove('opacity-0');
@@ -1013,7 +1012,7 @@ function editItem(item) {
 
     const modal = document.getElementById('item-modal');
     modal.classList.remove('hidden');
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
     // Небольшая задержка для анимации
     setTimeout(() => {
         modal.classList.remove('opacity-0');
@@ -1165,7 +1164,7 @@ function removePhoto() {
     document.getElementById('item-img-preview').innerHTML = '<i data-lucide="image" class="w-6 h-6 text-slate-300"></i>';
     document.getElementById('btn-remove-photo').classList.add('hidden');
     photoRemoved = true;
-    lucide.createIcons();
+    try { lucide.createIcons(); } catch(e) {}
 }
 
 function quickUpdateQty(id, delta) {

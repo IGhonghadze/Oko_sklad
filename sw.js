@@ -1,10 +1,12 @@
 // Oko Sklad — Service Worker
-const CACHE_NAME = 'oko-sklad-v2';
+const CACHE_NAME = 'oko-sklad-v3';
 const STATIC_ASSETS = [
-  '/',
-  '/style.css',
-  '/script.js',
-  '/manifest.json',
+  './',
+  './index.html',
+  './style.css',
+  './script.js',
+  './data.js',
+  './manifest.json',
   'https://cdn.tailwindcss.com',
   'https://unpkg.com/lucide@latest'
 ];
