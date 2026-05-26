@@ -1016,108 +1016,222 @@ document.getElementById('confirm-delete-btn').addEventListener('click', () => {
 });
 
 function saveItem() {
+    console.log("=== saveItem() ВЫЗВАН ===");
+    
     try {
+        // Получаем кнопку сохранения
+        const saveBtn = document.getElementById('btn-save-item');
+        
         // Проверяем Firebase
         if (typeof db === 'undefined' || !db) {
-            alert('Ошибка: база данных не подключена. Проверьте интернет-соединение и перезагрузите страницу.');
+            showToast('Ошибка: база данных Firebase не инициализирована. Проверьте интернет.', 'error');
             return;
         }
 
-        const id = document.getElementById('item-id').value;
-        const fileInput = document.getElementById('item-file-input');
+        const id = document.getElementById('item-id') ? document.getElementById('item-id').value : '';
+        const isEditing = id !== '';
+        
+        const nameEl = document.getElementById('item-name');
+        const catEl = document.getElementById('item-category');
+        const qtyEl = document.getElementById('item-qty');
+        const priceEl = document.getElementById('item-price');
+        
+        const nameField = nameEl.value;
+        const catField = catEl.value || 'Общая';
+        const qtyField = parseFloat(qtyEl.value) || 0;
+        const priceField = parseFloat(priceEl.value) || 0;
+
+        // Валидация с визуальной обратной связью
+        let isValid = true;
+        
+        // Сброс ошибок
+        [nameEl, qtyEl, priceEl].forEach(el => {
+            el.style.borderColor = '';
+            el.style.boxShadow = '';
+        });
+
+        if (!nameField || nameField.trim() === '') {
+            nameEl.style.borderColor = '#ef4444';
+            nameEl.style.boxShadow = '0 0 0 3px rgba(239,68,68,0.15)';
+            nameEl.focus();
+            showToast('Введите наименование товара!', 'error');
+            isValid = false;
+        }
+        
+        if (!isValid) return;
+
+        // Показываем состояние загрузки на кнопке
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle><path d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" fill="currentColor"></path></svg> Сохранение...';
+            saveBtn.style.opacity = '0.7';
+        }
 
         const itemData = {
-            category: document.getElementById('item-category').value || 'Общая',
-            name: document.getElementById('item-name').value,
-            characteristics: document.getElementById('item-chars').value,
-            width: document.getElementById('item-width').value,
-            height: document.getElementById('item-height').value,
-            quantity: parseFloat(document.getElementById('item-qty').value) || 0,
-            price: parseFloat(document.getElementById('item-price').value) || 0,
-            note: document.getElementById('item-note').value,
-            total: (parseFloat(document.getElementById('item-price').value) || 0) * (parseFloat(document.getElementById('item-qty').value) || 0),
+            category: catField,
+            name: nameField,
+            characteristics: document.getElementById('item-chars').value || '',
+            width: document.getElementById('item-width').value || '',
+            height: document.getElementById('item-height').value || '',
+            quantity: qtyField,
+            price: priceField,
+            note: document.getElementById('item-note').value || '',
+            total: priceField * qtyField,
             username: 'Админ'
         };
-
-        if (!itemData.name || itemData.name.trim() === '') {
-            alert('Введите наименование товара!');
-            return;
-        }
-
-        const isEditing = id !== '';
-
-        // Обработка изображения
-        if (isEditing) {
-            const oldItem = allItems.find(i => String(i.id) === String(id));
-            if (oldItem && oldItem['Фото'] && !photoRemoved) {
-                itemData.image = oldItem['Фото'];
-            }
-        }
 
         const oldQty = isEditing ? (allItems.find(i => String(i.id) === String(id))?._qty || 0) : 0;
         const qtyDiff = itemData.quantity - oldQty;
 
-        // Функция финального сохранения
+        const resetBtn = () => {
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Сохранить';
+                saveBtn.style.opacity = '1';
+                try { lucide.createIcons(); } catch(e) {}
+            }
+        };
+
         const doSave = (imageUrl) => {
             try {
                 if (imageUrl) {
                     itemData.image = imageUrl;
-                } else if (photoRemoved && isEditing) {
+                } else if (typeof photoRemoved !== 'undefined' && photoRemoved && isEditing) {
                     itemData.image = firebase.firestore.FieldValue.delete();
                 }
+
+                // Оптимистичное обновление UI
+                const updateUI = () => {
+                    try { closeItemModal(); } catch (e) {}
+                    try {
+                        if (!isEditing) {
+                            const ni = {
+                                id: 'tmp_' + Date.now(),
+                                'Наименование ': itemData.name,
+                                'Наименование': itemData.name,
+                                'Характеристики': itemData.characteristics,
+                                'Ширина': itemData.width,
+                                'Длина/Высота': itemData.height,
+                                'Кол-во': itemData.quantity,
+                                'Цена': itemData.price,
+                                'Стоимость': itemData.total,
+                                'Примечание': itemData.note,
+                                'Фото': itemData.image || '',
+                                '_qty': itemData.quantity,
+                                '_price': itemData.price,
+                                '_total': itemData.total,
+                                '_category': itemData.category
+                            };
+                            if (!parsedData[itemData.category]) {
+                                parsedData[itemData.category] = { headers: ["Наименование", "Характеристики", "Ширина", "Длина/Высота", "Кол-во", "Цена", "Стоимость", "Примечание", "Фото"], items: [] };
+                            }
+                            parsedData[itemData.category].items.unshift(ni);
+                            allItems.unshift(ni);
+                            if (currentCategory === itemData.category) {
+                                tableData = [...parsedData[currentCategory].items];
+                                renderTable(currentCategory);
+                            }
+                        }
+                    } catch(e) { console.warn("UI update error", e); }
+                    showToast(isEditing ? 'Товар обновлён!' : 'Товар добавлен!', 'success');
+                    resetBtn();
+                    try { loadServerData(); } catch(e) { console.warn(e); }
+                };
 
                 if (isEditing) {
                     db.collection('items').doc(String(id)).update(itemData)
                         .then(() => {
                             if (qtyDiff !== 0) {
-                                const action = qtyDiff > 0 ? 'income' : 'outcome';
-                                logTransaction(itemData.name, itemData.category, action, qtyDiff, itemData.quantity, itemData.note);
+                                logTransaction(itemData.name, itemData.category, qtyDiff > 0 ? 'income' : 'outcome', qtyDiff, itemData.quantity, itemData.note);
                             }
-                            closeItemModal();
-                            loadServerData();
+                            updateUI();
                         })
                         .catch(err => {
-                            alert('Ошибка при обновлении: ' + err.message);
+                            showToast('Ошибка при обновлении: ' + err.message, 'error');
+                            resetBtn();
                         });
                 } else {
                     db.collection('items').add(itemData)
-                        .then((docRef) => {
+                        .then(() => {
                             logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
-                            closeItemModal();
-                            loadServerData();
+                            updateUI();
                         })
                         .catch(err => {
-                            alert('Ошибка при добавлении: ' + err.message);
+                            showToast('Ошибка при добавлении: ' + err.message, 'error');
+                            resetBtn();
                         });
                 }
             } catch (innerErr) {
-                alert('Ошибка сохранения: ' + innerErr.message);
+                showToast('Сбой перед отправкой в БД: ' + innerErr.message, 'error');
+                resetBtn();
             }
         };
 
-        // Загрузка фото или сохранение без фото
+        const fileInput = document.getElementById('item-file-input');
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
-            const file = fileInput.files[0];
             try {
+                const file = fileInput.files[0];
                 const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
                 storageRef.put(file).then((snapshot) => {
-                    snapshot.ref.getDownloadURL().then((url) => {
-                        doSave(url);
-                    });
+                    snapshot.ref.getDownloadURL().then(url => doSave(url));
                 }).catch(err => {
-                    alert('Ошибка загрузки фото: ' + err.message);
+                    showToast('Ошибка загрузки фото: ' + err.message, 'error');
+                    doSave(null);
                 });
             } catch (storageErr) {
-                alert('Ошибка хранилища: ' + storageErr.message + '. Сохраняю без фото...');
+                showToast('Ошибка инициализации хранилища: ' + storageErr.message, 'error');
                 doSave(null);
             }
         } else {
             doSave(null);
         }
     } catch (e) {
-        alert('Критическая ошибка в saveItem: ' + e.message);
+        showToast('Критическая ошибка: ' + (e.message || e), 'error');
         console.error('saveItem error:', e);
+        // Восстановим кнопку
+        const saveBtn = document.getElementById('btn-save-item');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Сохранить';
+            saveBtn.style.opacity = '1';
+            try { lucide.createIcons(); } catch(e2) {}
+        }
     }
+}
+
+// === Toast-уведомления ===
+function showToast(message, type) {
+    // type: 'success', 'error', 'info'
+    const existing = document.getElementById('oko-toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'oko-toast';
+    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 24px;border-radius:12px;font-size:14px;font-weight:600;color:white;box-shadow:0 8px 32px rgba(0,0,0,0.2);transition:opacity 0.3s,transform 0.3s;opacity:0;transform:translateX(-50%) translateY(-10px);max-width:90vw;text-align:center;';
+    
+    if (type === 'success') {
+        toast.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+    } else if (type === 'error') {
+        toast.style.background = 'linear-gradient(135deg, #dc2626, #ef4444)';
+    } else {
+        toast.style.background = 'linear-gradient(135deg, #2563eb, #3b82f6)';
+    }
+    
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    // Показываем
+    requestAnimationFrame(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+    
+    // Скрываем через 3 секунды
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(-10px)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
 }
 
 function previewImage(input) {
@@ -1162,12 +1276,19 @@ function quickUpdateQty(id, delta) {
 // Добавим стили для анимации ошибки
 const style = document.createElement('style');
 style.textContent =
-    "@keyframes shake {\\n" +
-    "    0%, 100% { transform: translateX(0); }\\n" +
-    "    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }\\n" +
-    "    20%, 40%, 60%, 80% { transform: translateX(5px); }\\n" +
-    "}\\n" +
-    ".animate-shake {\\n" +
-    "    animation: shake 0.5s;\\n" +
-    "}\\n";
+    "@keyframes shake {\n" +
+    "    0%, 100% { transform: translateX(0); }\n" +
+    "    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }\n" +
+    "    20%, 40%, 60%, 80% { transform: translateX(5px); }\n" +
+    "}\n" +
+    ".animate-shake {\n" +
+    "    animation: shake 0.5s;\n" +
+    "}\n" +
+    "@keyframes spin {\n" +
+    "    to { transform: rotate(360deg); }\n" +
+    "}\n" +
+    ".animate-spin {\n" +
+    "    animation: spin 1s linear infinite;\n" +
+    "}\n";
 document.head.appendChild(style);
+
