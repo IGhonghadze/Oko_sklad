@@ -557,12 +557,30 @@
     <script src="data.js"></script>
     <script src="script.js"></script>
     <script>
+        // Force clear old service worker caches and re-register
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    console.log('SW registered!', reg);
+            // Step 1: Delete ALL caches
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                        console.log('Deleted cache:', name);
+                    });
+                });
+            }
+            // Step 2: Unregister old SW, then register fresh one
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                const unregisterPromises = registrations.map(reg => {
+                    console.log('Unregistering old SW:', reg.scope);
+                    return reg.unregister();
+                });
+                return Promise.all(unregisterPromises);
+            }).then(() => {
+                // Step 3: Register new SW
+                navigator.serviceWorker.register('./sw.js?v=5').then(reg => {
+                    console.log('New SW registered!', reg);
                 }).catch(err => {
-                    console.log('SW registration failed!', err);
+                    console.log('SW registration failed:', err);
                 });
             });
         }
