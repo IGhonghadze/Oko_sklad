@@ -1016,83 +1016,107 @@ document.getElementById('confirm-delete-btn').addEventListener('click', () => {
 });
 
 function saveItem() {
-    const id = document.getElementById('item-id').value;
-    const fileInput = document.getElementById('item-file-input');
-
-    const itemData = {
-        category: document.getElementById('item-category').value || 'Общая',
-        name: document.getElementById('item-name').value,
-        characteristics: document.getElementById('item-chars').value,
-        width: document.getElementById('item-width').value,
-        height: document.getElementById('item-height').value,
-        quantity: parseFloat(document.getElementById('item-qty').value) || 0,
-        price: parseFloat(document.getElementById('item-price').value) || 0,
-        note: document.getElementById('item-note').value,
-        total: (parseFloat(document.getElementById('item-price').value) || 0) * (parseFloat(document.getElementById('item-qty').value) || 0)
-    };
-
-    if (!itemData.name || itemData.name.trim() === '') {
-        alert('Введите наименование товара!');
-        return;
-    }
-
-    const isEditing = id !== '';
-    const itemId = isEditing ? id : 'item_' + Date.now();
-    itemData.id = itemId;
-
-    const oldQty = isEditing ? (allItems.find(i => String(i.id) === String(id))?._qty || 0) : 0;
-    const qtyDiff = itemData.quantity - oldQty;
-
-    const saveToDb = (imageUrl) => {
-        if (imageUrl !== undefined) {
-            if (imageUrl === null && isEditing) {
-                itemData.image = firebase.firestore.FieldValue.delete();
-            } else if (imageUrl === null && !isEditing) {
-                // Don't set image field for new items when photo removed
-            } else if (imageUrl) {
-                itemData.image = imageUrl;
-            }
-        } else if (isEditing) {
-            const oldItem = allItems.find(i => String(i.id) === String(id));
-            if (oldItem && oldItem['Фото']) itemData.image = oldItem['Фото'];
+    try {
+        // Проверяем Firebase
+        if (typeof db === 'undefined' || !db) {
+            alert('Ошибка: база данных не подключена. Проверьте интернет-соединение и перезагрузите страницу.');
+            return;
         }
 
-        // Add username
-        itemData.username = 'Админ';
+        const id = document.getElementById('item-id').value;
+        const fileInput = document.getElementById('item-file-input');
+
+        const itemData = {
+            category: document.getElementById('item-category').value || 'Общая',
+            name: document.getElementById('item-name').value,
+            characteristics: document.getElementById('item-chars').value,
+            width: document.getElementById('item-width').value,
+            height: document.getElementById('item-height').value,
+            quantity: parseFloat(document.getElementById('item-qty').value) || 0,
+            price: parseFloat(document.getElementById('item-price').value) || 0,
+            note: document.getElementById('item-note').value,
+            total: (parseFloat(document.getElementById('item-price').value) || 0) * (parseFloat(document.getElementById('item-qty').value) || 0),
+            username: 'Админ'
+        };
+
+        if (!itemData.name || itemData.name.trim() === '') {
+            alert('Введите наименование товара!');
+            return;
+        }
+
+        const isEditing = id !== '';
+
+        // Обработка изображения
         if (isEditing) {
-            db.collection('items').doc(String(id)).update(itemData).then(() => {
-                if (qtyDiff !== 0) {
-                    const action = qtyDiff > 0 ? 'income' : 'outcome';
-                    logTransaction(itemData.name, itemData.category, action, qtyDiff, itemData.quantity, itemData.note);
-                }
-                closeItemModal();
-                loadServerData();
-            }).catch(err => {
-                console.error("Ошибка при обновлении:", err);
-                alert("Ошибка сохранения: " + err.message);
-            });
-        } else {
-            db.collection('items').add(itemData).then((docRef) => {
-                logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
-                closeItemModal();
-                loadServerData();
-            }).catch(err => {
-                console.error("Ошибка при добавлении:", err);
-                alert("Ошибка сохранения: " + err.message);
-            });
+            const oldItem = allItems.find(i => String(i.id) === String(id));
+            if (oldItem && oldItem['Фото'] && !photoRemoved) {
+                itemData.image = oldItem['Фото'];
+            }
         }
-    };
 
-    if (fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
-        storageRef.put(file).then((snapshot) => {
-            snapshot.ref.getDownloadURL().then((url) => {
-                saveToDb(url);
-            });
-        });
-    } else {
-        saveToDb(photoRemoved ? null : undefined);
+        const oldQty = isEditing ? (allItems.find(i => String(i.id) === String(id))?._qty || 0) : 0;
+        const qtyDiff = itemData.quantity - oldQty;
+
+        // Функция финального сохранения
+        const doSave = (imageUrl) => {
+            try {
+                if (imageUrl) {
+                    itemData.image = imageUrl;
+                } else if (photoRemoved && isEditing) {
+                    itemData.image = firebase.firestore.FieldValue.delete();
+                }
+
+                if (isEditing) {
+                    db.collection('items').doc(String(id)).update(itemData)
+                        .then(() => {
+                            if (qtyDiff !== 0) {
+                                const action = qtyDiff > 0 ? 'income' : 'outcome';
+                                logTransaction(itemData.name, itemData.category, action, qtyDiff, itemData.quantity, itemData.note);
+                            }
+                            closeItemModal();
+                            loadServerData();
+                        })
+                        .catch(err => {
+                            alert('Ошибка при обновлении: ' + err.message);
+                        });
+                } else {
+                    db.collection('items').add(itemData)
+                        .then((docRef) => {
+                            logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
+                            closeItemModal();
+                            loadServerData();
+                        })
+                        .catch(err => {
+                            alert('Ошибка при добавлении: ' + err.message);
+                        });
+                }
+            } catch (innerErr) {
+                alert('Ошибка сохранения: ' + innerErr.message);
+            }
+        };
+
+        // Загрузка фото или сохранение без фото
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            try {
+                const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then((snapshot) => {
+                    snapshot.ref.getDownloadURL().then((url) => {
+                        doSave(url);
+                    });
+                }).catch(err => {
+                    alert('Ошибка загрузки фото: ' + err.message);
+                });
+            } catch (storageErr) {
+                alert('Ошибка хранилища: ' + storageErr.message + '. Сохраняю без фото...');
+                doSave(null);
+            }
+        } else {
+            doSave(null);
+        }
+    } catch (e) {
+        alert('Критическая ошибка в saveItem: ' + e.message);
+        console.error('saveItem error:', e);
     }
 }
 
