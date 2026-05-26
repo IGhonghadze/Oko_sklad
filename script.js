@@ -4,12 +4,12 @@
 
 // --- Данные ---
 let parsedData = {};
-let currentCategory = 'Склад ВСЁ';
+let currentCategory = 'Изделия ПВХ и Алюминий';
 let allItems = []; // Плоский массив для глобального поиска
 
 // Иконки для категорий
 const categoryIcons = {
-    'Склад ВСЁ': 'package',
+    'Изделия ПВХ и Алюминий': 'package',
     'Душевые и безрамка': 'droplets',
     'Фурнитура ПВХ': 'wrench',
     'Подоконники': 'panel-bottom',
@@ -135,6 +135,63 @@ function parseLocalCSVData() {
         }
     }
 
+    // --- Применение изменений из localStorage ---
+    const localSaved = JSON.parse(localStorage.getItem('oko_saved_items') || '[]');
+    const localDeleted = JSON.parse(localStorage.getItem('oko_deleted_items') || '[]');
+
+    // 1. Удаляем удалённые
+    if (localDeleted.length > 0) {
+        allItems = allItems.filter(item => !localDeleted.includes(String(item.id)));
+        for (const cat in parsedData) {
+            parsedData[cat].items = parsedData[cat].items.filter(item => !localDeleted.includes(String(item.id)));
+        }
+    }
+
+    // 2. Добавляем/Обновляем сохранённые
+    localSaved.forEach(savedItem => {
+        // Форматируем под нашу структуру
+        const itemObj = {
+            'id': savedItem.id,
+            'Наименование': savedItem.name,
+            'Характеристики': savedItem.characteristics,
+            'Ширина': savedItem.width,
+            'Длина/Высота': savedItem.height,
+            'Кол-во': savedItem.quantity,
+            'Цена': savedItem.price,
+            'Стоимость': savedItem.total,
+            'Примечание': savedItem.note,
+            'Фото': savedItem.image || '',
+            '_qty': savedItem.quantity,
+            '_price': savedItem.price,
+            '_total': savedItem.total,
+            '_category': savedItem.category
+        };
+
+        const existingIdx = allItems.findIndex(i => String(i.id) === String(savedItem.id));
+        if (existingIdx >= 0) {
+            // Обновляем существующий
+            const oldItem = allItems[existingIdx];
+            allItems[existingIdx] = itemObj;
+            
+            // Обновляем в категории
+            if (parsedData[oldItem._category]) {
+                const catIdx = parsedData[oldItem._category].items.findIndex(i => String(i.id) === String(savedItem.id));
+                if (catIdx >= 0) parsedData[oldItem._category].items.splice(catIdx, 1);
+            }
+            if (!parsedData[savedItem.category]) {
+                parsedData[savedItem.category] = { headers: ['Наименование', 'Характеристики', 'Ширина', 'Длина/Высота', 'Кол-во', 'Цена', 'Стоимость', 'Примечание', 'Фото'], items: [] };
+            }
+            parsedData[savedItem.category].items.push(itemObj);
+        } else {
+            // Добавляем новый
+            allItems.push(itemObj);
+            if (!parsedData[savedItem.category]) {
+                parsedData[savedItem.category] = { headers: ['Наименование', 'Характеристики', 'Ширина', 'Длина/Высота', 'Кол-во', 'Цена', 'Стоимость', 'Примечание', 'Фото'], items: [] };
+            }
+            parsedData[savedItem.category].items.push(itemObj);
+        }
+    });
+
     buildNavigation();
     updateDashboard();
 
@@ -143,7 +200,7 @@ function parseLocalCSVData() {
         renderTable(currentCategory);
     }
 
-    console.log('✅ Данные загружены из data.js. Категорий: ' + Object.keys(parsedData).length + ', товаров: ' + allItems.length);
+    console.log('✅ Данные загружены из data.js + localStorage. Категорий: ' + Object.keys(parsedData).length + ', товаров: ' + allItems.length);
 }
 
 // --- Парсинг данных с сервера (Firebase) ---
@@ -223,32 +280,7 @@ function parseServerData(dataList) {
 }
 
 // --- Авторизация ---
-let authMode = 'login'; // 'login' or 'register'
 let currentUserRole = 'employee';
-
-function switchAuthTab(mode) {
-    authMode = mode;
-
-    const btnLogin = document.getElementById('tab-login');
-    const btnRegister = document.getElementById('tab-register');
-    const subtitle = document.getElementById('auth-subtitle');
-    const submitBtn = document.getElementById('auth-submit-btn');
-    const errorMsg = document.getElementById('auth-error');
-
-    errorMsg.classList.add('hidden');
-
-    if (mode === 'login') {
-        btnLogin.className = 'flex-1 py-2 text-sm font-semibold text-white bg-white/20 rounded-lg shadow-sm transition-all';
-        btnRegister.className = 'flex-1 py-2 text-sm font-semibold text-white/50 hover:text-white transition-all rounded-lg';
-        subtitle.textContent = 'Войдите в систему для управления складом';
-        submitBtn.textContent = 'Войти в систему';
-    } else {
-        btnRegister.className = 'flex-1 py-2 text-sm font-semibold text-white bg-white/20 rounded-lg shadow-sm transition-all';
-        btnLogin.className = 'flex-1 py-2 text-sm font-semibold text-white/50 hover:text-white transition-all rounded-lg';
-        subtitle.textContent = 'Обратитесь к Администратору для регистрации';
-        submitBtn.textContent = 'Только Вход'; // Регистрация с клиента пока отключена для безопасности
-    }
-}
 
 function togglePasswordVisibility() {
     const pwdInput = document.getElementById('auth-password');
@@ -264,15 +296,24 @@ function togglePasswordVisibility() {
     lucide.createIcons();
 }
 
-function handleAuth(e) {
+async function handleAuth(e) {
     e.preventDefault();
     const password = document.getElementById('auth-password').value;
     
-    if (password === '47474') {
+    // Хеширование пин-кода (SHA-256)
+    const msgUint8 = new TextEncoder().encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // Хеш от строки "47474"
+    const expectedHash = '7ab14532e35f29db42d76d4db7a92fb9cdd6bc8d2495d46bbdbf472d62ea13d0';
+    
+    if (hashHex === expectedHash) {
         localStorage.setItem('okoAuth', 'true');
-        loginUser('Админ', 'admin');
+        loginUser('Сотрудник', 'admin');
     } else {
-        showAuthError('Неверный пароль');
+        showAuthError('Неверный пин-код');
     }
 }
 function showAuthError(msg) {
@@ -313,8 +354,8 @@ function checkAuthStatus() {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('app-screen').classList.remove('hidden');
         currentUserRole = 'admin';
-        document.getElementById('current-username').textContent = 'Админ';
-        document.getElementById('user-initial').textContent = 'А';
+        document.getElementById('current-username').textContent = 'Сотрудник';
+        document.getElementById('user-initial').textContent = 'С';
         loadServerData();
     } else {
         document.getElementById('auth-screen').style.opacity = '1';
@@ -897,10 +938,23 @@ loginUser = function (username, role) {
 }
 
 
+function populateCategorySelect() {
+    const select = document.getElementById('item-category');
+    select.innerHTML = '';
+    const categories = Object.keys(parsedData).filter(c => c !== 'Дашборд');
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+    });
+}
+
 function openAddItemModal() {
     document.getElementById('modal-title').textContent = 'Новый товар';
     document.getElementById('item-id').value = '';
-    document.getElementById('item-category').value = currentCategory || 'Общая';
+    populateCategorySelect();
+    document.getElementById('item-category').value = currentCategory && currentCategory !== 'Дашборд' ? currentCategory : 'Изделия ПВХ и Алюминий';
 
     document.getElementById('item-name').value = '';
     document.getElementById('item-chars').value = '';
@@ -928,6 +982,7 @@ function openAddItemModal() {
 function editItem(item) {
     document.getElementById('modal-title').textContent = 'Редактировать товар';
     document.getElementById('item-id').value = item.id;
+    populateCategorySelect();
     document.getElementById('item-category').value = item._category;
 
     // Подставляем значения из таблицы по ключам
@@ -998,18 +1053,26 @@ function closeDeleteModal() {
 document.getElementById('confirm-delete-btn').addEventListener('click', () => {
     if (!itemToDeleteId) return;
 
-    const item = allItems.find(i => i.id === itemToDeleteId);
-    db.collection('items').doc(String(itemToDeleteId)).delete()
-        .then(() => {
-            if (item) {
-                logTransaction(item['Наименование '] || item['Наименование'], item._category, 'delete', -(item._qty || 0), 0, 'Удалён со склада');
-            }
-            closeDeleteModal();
-            loadServerData();
-        })
-        .catch(err => {
-            alert('Ошибка при удалении: ' + err.message);
-        });
+    const item = allItems.find(i => String(i.id) === String(itemToDeleteId));
+    
+    // Добавляем ID в список удалённых в localStorage
+    const deletedItems = JSON.parse(localStorage.getItem('oko_deleted_items') || '[]');
+    if (!deletedItems.includes(String(itemToDeleteId))) {
+        deletedItems.push(String(itemToDeleteId));
+        localStorage.setItem('oko_deleted_items', JSON.stringify(deletedItems));
+    }
+    
+    // Также удаляем из сохранённых (если он там был)
+    let savedItems = JSON.parse(localStorage.getItem('oko_saved_items') || '[]');
+    savedItems = savedItems.filter(i => String(i.id) !== String(itemToDeleteId));
+    localStorage.setItem('oko_saved_items', JSON.stringify(savedItems));
+
+    if (item) {
+        logTransaction(item['Наименование '] || item['Наименование'], item._category, 'delete', -(item._qty || 0), 0, 'Удалён со склада');
+    }
+    
+    closeDeleteModal();
+    loadServerData();
 });
 
 function saveItem() {
@@ -1021,7 +1084,6 @@ function saveItem() {
         name: document.getElementById('item-name').value,
         characteristics: document.getElementById('item-chars').value,
         width: document.getElementById('item-width').value,
-        length: document.getElementById('item-height').value,
         height: document.getElementById('item-height').value,
         quantity: parseFloat(document.getElementById('item-qty').value) || 0,
         price: parseFloat(document.getElementById('item-price').value) || 0,
@@ -1035,43 +1097,54 @@ function saveItem() {
     }
 
     const isEditing = id !== '';
-    const oldQty = isEditing ? (allItems.find(i => i.id === id)?._qty || 0) : 0;
+    const itemId = isEditing ? id : 'item_' + Date.now();
+    itemData.id = itemId;
+
+    const oldQty = isEditing ? (allItems.find(i => String(i.id) === String(id))?._qty || 0) : 0;
     const qtyDiff = itemData.quantity - oldQty;
 
-    const saveToDb = (imageUrl) => {
+    const saveToStorage = (imageUrl) => {
         if (imageUrl !== undefined) {
-            if (imageUrl === null) itemData.image = firebase.firestore.FieldValue.delete();
+            if (imageUrl === null) itemData.image = '';
             else itemData.image = imageUrl;
+        } else if (isEditing) {
+            // Оставляем старое фото
+            const oldItem = allItems.find(i => String(i.id) === String(id));
+            if (oldItem) itemData.image = oldItem['Фото'];
         }
 
-        if (isEditing) {
-            db.collection('items').doc(String(id)).update(itemData).then(() => {
-                if (qtyDiff !== 0) {
-                    const action = qtyDiff > 0 ? 'income' : 'outcome';
-                    logTransaction(itemData.name, itemData.category, action, qtyDiff, itemData.quantity, itemData.note);
-                }
-                closeItemModal();
-                loadServerData();
-            });
+        // Сохраняем в localStorage
+        let savedItems = JSON.parse(localStorage.getItem('oko_saved_items') || '[]');
+        const existingIdx = savedItems.findIndex(i => String(i.id) === String(itemId));
+        if (existingIdx >= 0) {
+            savedItems[existingIdx] = itemData;
         } else {
-            db.collection('items').add(itemData).then((docRef) => {
-                logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
-                closeItemModal();
-                loadServerData();
-            });
+            savedItems.push(itemData);
         }
+        localStorage.setItem('oko_saved_items', JSON.stringify(savedItems));
+
+        if (isEditing) {
+            if (qtyDiff !== 0) {
+                const action = qtyDiff > 0 ? 'income' : 'outcome';
+                logTransaction(itemData.name, itemData.category, action, qtyDiff, itemData.quantity, itemData.note);
+            }
+        } else {
+            logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
+        }
+        
+        closeItemModal();
+        loadServerData();
     };
 
     if (fileInput.files.length > 0) {
         const file = fileInput.files[0];
-        const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
-        storageRef.put(file).then((snapshot) => {
-            snapshot.ref.getDownloadURL().then((url) => {
-                saveToDb(url);
-            });
-        });
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            saveToStorage(e.target.result); // Сохраняем DataURL вместо загрузки в Firebase Storage
+        };
+        reader.readAsDataURL(file);
     } else {
-        saveToDb(photoRemoved ? null : undefined);
+        saveToStorage(photoRemoved ? null : undefined);
     }
 }
 
