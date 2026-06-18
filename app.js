@@ -147,30 +147,27 @@ function parseLocalCSVData() {
     console.log('✅ Данные загружены из data.js + localStorage. Категорий: ' + Object.keys(parsedData).length + ', товаров: ' + allItems.length);
 }
 
-// --- Парсинг данных с сервера (Firebase) ---
+// --- Парсинг данных с сервера (PHP API) ---
 function loadServerData() {
     // Сначала загружаем локальные данные (моментально!)
     parseLocalCSVData();
 
-    // Потом пробуем загрузить из Firebase (если там есть данные — перезапишем)
-    if (typeof db !== 'undefined') {
-        db.collection('items').get()
-            .then(snapshot => {
-                const data = [];
-                snapshot.forEach(doc => {
-                    data.push({ id: doc.id, ...doc.data() });
-                });
-                if (data.length > 0) {
-                    console.log('☁️ Firebase: найдено ' + data.length + ' товаров, обновляю данные...');
-                    parseServerData(data);
-                } else {
-                    console.log('☁️ Firebase пуст, используем локальные данные из data.js');
-                }
-            })
-            .catch(err => {
-                console.warn('⚠️ Ошибка загрузки из Firebase, используем локальные данные:', err);
-            });
-    }
+    fetch('api.php?action=getItems')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.length > 0) {
+                console.log('☁️ API: найдено ' + data.length + ' товаров, обновляю данные...');
+                parseServerData(data);
+            } else {
+                console.log('☁️ API пуст, используем локальные данные из data.js');
+            }
+        })
+        .catch(err => {
+            console.warn('⚠️ Ошибка загрузки из API, используем локальные данные:', err);
+        });
 }
 
 function parseServerData(dataList) {
@@ -483,27 +480,30 @@ function showHistory() {
 }
 
 function loadHistory() {
-    db.collection('transactions').orderBy('created_at', 'desc').limit(100).get()
-        .then(snapshot => {
-            const data = [];
-            snapshot.forEach(doc => {
-                data.push({ id: doc.id, ...doc.data() });
-            });
+    fetch('api.php?action=getTransactions')
+        .then(response => response.json())
+        .then(data => {
             renderHistory(data);
         })
         .catch(err => console.error('Ошибка загрузки истории:', err));
 }
+
 function logTransaction(item_name, category, action, qty_change, qty_after, note) {
-    db.collection('transactions').add({
+    const payload = {
         item_name: item_name || '',
         category: category || '',
         action: action,
         qty_change: qty_change,
         qty_after: qty_after,
         username: 'Админ',
-        note: note || '',
-        created_at: firebase.firestore.FieldValue.serverTimestamp()
-    });
+        note: note || ''
+    };
+
+    fetch('api.php?action=addTransaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    }).catch(err => console.error('Ошибка сохранения транзакции:', err));
 }
 
 
@@ -529,6 +529,7 @@ function renderHistory(data) {
             case 'income': actionText = 'Приход товара'; icon = 'trending-up'; break;
             case 'outcome': actionText = 'Расход товара'; icon = 'trending-down'; break;
             case 'delete': actionText = 'Удаление'; icon = 'trash-2'; break;
+            case 'writeoff': actionText = 'Списание товара'; icon = 'package-minus'; break;
         }
 
         div.innerHTML = `
@@ -704,7 +705,17 @@ function renderTable(categoryName) {
                         if (num <= 0) badgeClass = 'badge-outstock';
                         else if (num < 5) badgeClass = 'badge-lowstock';
                         
-                        cellValue = `<span class="badge ${badgeClass}">${num} шт</span>`;
+                        cellValue = `<div class="flex items-center justify-between gap-2">
+                            <span class="badge ${badgeClass}">${num} шт</span>
+                            <div class="flex items-center bg-slate-100 rounded-lg overflow-hidden border border-slate-200" onclick="event.stopPropagation()">
+                                <button onclick="quickUpdateQty('${item.id}', -1)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors" title="Уменьшить на 1">
+                                    <i data-lucide="minus" class="w-3 h-3"></i>
+                                </button>
+                                <button onclick="quickUpdateQty('${item.id}', 1)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors border-l border-slate-200" title="Увеличить на 1">
+                                    <i data-lucide="plus" class="w-3 h-3"></i>
+                                </button>
+                            </div>
+                        </div>`;
                     }
                 }
 
@@ -718,10 +729,13 @@ function renderTable(categoryName) {
                 actionTd.className = 'text-right px-4';
                 actionTd.innerHTML = `
                     <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="openWriteOffModal('${item.id}')" class="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-amber-50 rounded-md transition-colors" title="Списать">
+                            <i data-lucide="package-minus" class="w-4 h-4"></i>
+                        </button>
                         <button onclick='editItem(${JSON.stringify(item).replace(/'/g, "&#39;")})' class="p-1.5 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors" title="Редактировать">
                             <i data-lucide="pencil" class="w-4 h-4"></i>
                         </button>
-                        <button onclick='confirmDelete(${item.id})' class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Удалить">
+                        <button onclick="confirmDelete('${item.id}')" class="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors" title="Удалить">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                         </button>
                     </div>
@@ -1002,8 +1016,14 @@ document.getElementById('confirm-delete-btn').addEventListener('click', () => {
 
     const item = allItems.find(i => String(i.id) === String(itemToDeleteId));
     
-    db.collection('items').doc(String(itemToDeleteId)).delete()
-        .then(() => {
+    fetch('api.php?action=deleteItem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: itemToDeleteId })
+    })
+        .then(res => res.json())
+        .then((data) => {
+            if (data.error) throw new Error(data.error);
             if (item) {
                 logTransaction(item['Наименование '] || item['Наименование'], item._category, 'delete', -(item._qty || 0), 0, 'Удалён со склада');
             }
@@ -1021,11 +1041,7 @@ function saveItem() {
     try {
         const saveBtn = document.getElementById('btn-save-item');
         
-        // Проверяем Firebase
-        if (typeof db === 'undefined' || !db) {
-            showToast('Ошибка: Firebase не подключена. Проверьте интернет.', 'error');
-            return;
-        }
+
 
         const id = document.getElementById('item-id') ? document.getElementById('item-id').value : '';
         const isEditing = id !== '';
@@ -1156,96 +1172,59 @@ function saveItem() {
             } catch(e) { console.warn("optimistic update error", e); }
         };
 
-        // --- Обёртка Firebase с таймаутом ---
-        const withTimeout = (promise, ms) => {
-            let timeoutId;
-            const timeout = new Promise((_, reject) => {
-                timeoutId = setTimeout(() => reject(new Error('TIMEOUT')), ms);
-            });
-            return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId));
-        };
+        // СНАЧАЛА закрываем модалку и обновляем UI локально
+        try { closeItemModal(); } catch(e) {}
+        optimisticUpdate();
+        resetBtn();
+        
+        const formData = new FormData();
+        if (isEditing && !id.startsWith('tmp_')) formData.append('id', id);
+        formData.append('category', itemData.category);
+        formData.append('name', itemData.name);
+        formData.append('characteristics', itemData.characteristics);
+        formData.append('width', itemData.width);
+        formData.append('height', itemData.height);
+        formData.append('quantity', itemData.quantity);
+        formData.append('price', itemData.price);
+        formData.append('total', itemData.total);
+        formData.append('note', itemData.note);
+        
+        if (typeof photoRemoved !== 'undefined' && photoRemoved && isEditing) {
+            formData.append('image', '');
+        }
 
-        const doSave = (imageUrl) => {
-            try {
-                if (imageUrl) {
-                    itemData.image = imageUrl;
-                } else if (typeof photoRemoved !== 'undefined' && photoRemoved && isEditing) {
-                    itemData.image = firebase.firestore.FieldValue.delete();
-                }
-
-                // СНАЧАЛА закрываем модалку и обновляем UI локально
-                try { closeItemModal(); } catch(e) {}
-                optimisticUpdate();
-                resetBtn();
-                
-                // Теперь отправляем в Firebase
-                console.log("Отправляю в Firebase...", isEditing ? "UPDATE " + id : "ADD");
-
-                let firebasePromise;
-                if (isEditing && !id.startsWith('tmp_')) {
-                    firebasePromise = db.collection('items').doc(String(id)).update(itemData);
-                } else {
-                    firebasePromise = db.collection('items').add(itemData);
-                }
-
-                // Таймаут 10 секунд
-                withTimeout(firebasePromise, 10000)
-                    .then((result) => {
-                        console.log("✅ Firebase: сохранено успешно!");
-                        try {
-                            if (isEditing && qtyDiff !== 0) {
-                                logTransaction(itemData.name, itemData.category, qtyDiff > 0 ? 'income' : 'outcome', qtyDiff, itemData.quantity, itemData.note);
-                            } else if (!isEditing) {
-                                logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
-                            }
-                        } catch(e) { console.warn("logTransaction error:", e); }
-
-                        showToast(isEditing ? '✅ Товар обновлён!' : '✅ Товар добавлен!', 'success');
-                        
-                        // Перезагрузить данные с сервера только если всё ок
-                        try { loadServerData(); } catch(e) { console.warn(e); }
-                    })
-                    .catch(err => {
-                        console.error("❌ Firebase ошибка:", err);
-                        if (err.message === 'TIMEOUT') {
-                            showToast('⏰ Firebase не ответил за 10 сек. Возможно, нет интернета.', 'error');
-                        } else if (err.message.includes('permission')) {
-                            showToast('⛔ Ошибка прав доступа Firebase! Срок действия базы истёк.', 'error');
-                        } else {
-                            showToast('❌ Ошибка Firebase: ' + err.message, 'error');
-                        }
-                    });
-
-            } catch (innerErr) {
-                console.error("doSave error:", innerErr);
-                showToast('Сбой: ' + innerErr.message, 'error');
-                resetBtn();
-            }
-        };
-
-        // Загрузка фото (если есть)
         const fileInput = document.getElementById('item-file-input');
         if (fileInput && fileInput.files && fileInput.files.length > 0) {
-            try {
-                const file = fileInput.files[0];
-                const storageRef = storage.ref('uploads/' + Date.now() + '_' + file.name);
-                withTimeout(
-                    storageRef.put(file).then(snap => snap.ref.getDownloadURL()),
-                    15000
-                )
-                .then(url => doSave(url))
-                .catch(err => {
-                    console.error("Photo upload error:", err);
-                    showToast('Фото не загрузилось, сохраняю без фото', 'error');
-                    doSave(null);
-                });
-            } catch (storageErr) {
-                console.error("Storage init error:", storageErr);
-                doSave(null);
-            }
-        } else {
-            doSave(null);
+            formData.append('image_file', fileInput.files[0]);
         }
+
+        const actionName = isEditing && !id.startsWith('tmp_') ? 'updateItem' : 'addItem';
+        
+        fetch(`api.php?action=${actionName}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(result => {
+            if (result.error) throw new Error(result.error);
+            console.log("✅ API: сохранено успешно!");
+            try {
+                if (isEditing && qtyDiff !== 0) {
+                    logTransaction(itemData.name, itemData.category, qtyDiff > 0 ? 'income' : 'outcome', qtyDiff, itemData.quantity, itemData.note);
+                } else if (!isEditing) {
+                    logTransaction(itemData.name, itemData.category, 'add', itemData.quantity, itemData.quantity, 'Новый товар');
+                }
+            } catch(e) { console.warn("logTransaction error:", e); }
+
+            showToast(isEditing ? '✅ Товар обновлён!' : '✅ Товар добавлен!', 'success');
+            
+            // Перезагрузить данные с сервера только если всё ок
+            try { loadServerData(); } catch(e) { console.warn(e); }
+        })
+        .catch(err => {
+            console.error("❌ API ошибка:", err);
+            showToast('❌ Ошибка сохранения: ' + err.message, 'error');
+        });
     } catch (e) {
         showToast('Критическая ошибка: ' + (e.message || e), 'error');
         console.error('saveItem error:', e);
@@ -1315,7 +1294,7 @@ function removePhoto() {
 }
 
 function quickUpdateQty(id, delta) {
-    const item = allItems.find(i => i.id === id);
+    const item = allItems.find(i => i.id == id);
     if (!item) return;
 
     const newQty = (parseFloat(item._qty) || 0) + delta;
@@ -1323,13 +1302,133 @@ function quickUpdateQty(id, delta) {
 
     const newTotal = newQty * (parseFloat(item._price) || 0);
 
-    db.collection('items').doc(String(id)).update({
-        quantity: newQty,
-        total: newTotal
-    }).then(() => {
+    // Оптимистичное обновление UI
+    item._qty = newQty;
+    item['Кол-во'] = newQty;
+    item._total = newTotal;
+    item['Стоимость'] = newTotal;
+
+    if (currentCategory === item._category || currentCategory === 'Дашборд') {
+        if (currentCategory !== 'Дашборд') {
+            tableData = [...parsedData[currentCategory].items];
+            renderTable(currentCategory);
+        }
+        updateDashboard();
+    }
+
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('category', item._category);
+    formData.append('name', item['Наименование '] || item['Наименование']);
+    formData.append('characteristics', item['Характеристики'] || '');
+    formData.append('width', item['Ширина'] || '');
+    formData.append('height', item['Длина/Высота'] || '');
+    formData.append('quantity', newQty);
+    formData.append('price', item._price || 0);
+    formData.append('total', newTotal);
+    formData.append('note', item['Примечание'] || '');
+
+    fetch('api.php?action=updateItem', {
+        method: 'POST',
+        body: formData
+    }).then(res => res.json()).then(result => {
+        if (result.error) throw new Error(result.error);
         const action = delta > 0 ? 'income' : 'outcome';
         logTransaction(item['Наименование '] || item['Наименование'], item._category, action, delta, newQty, "Быстрая правка");
-        loadServerData();
+    }).catch(err => {
+        console.error("quickUpdateQty error:", err);
+    });
+}
+
+function openWriteOffModal(id) {
+    const item = allItems.find(i => i.id == id);
+    if (!item) return;
+    
+    document.getElementById('writeoff-item-id').value = id;
+    document.getElementById('writeoff-qty').value = '';
+    document.getElementById('writeoff-note').value = '';
+    
+    const modal = document.getElementById('writeoff-modal');
+    const content = document.getElementById('writeoff-modal-content');
+    
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+    }, 10);
+}
+
+function closeWriteOffModal() {
+    const modal = document.getElementById('writeoff-modal');
+    const content = document.getElementById('writeoff-modal-content');
+    
+    modal.classList.add('opacity-0');
+    content.classList.add('scale-95');
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+}
+
+function submitWriteOff() {
+    const id = document.getElementById('writeoff-item-id').value;
+    const qtyInput = document.getElementById('writeoff-qty').value;
+    const note = document.getElementById('writeoff-note').value || 'Списание';
+    
+    const delta = parseFloat(qtyInput);
+    if (isNaN(delta) || delta <= 0) {
+        showToast("Введите корректное количество", "error");
+        return;
+    }
+    
+    const item = allItems.find(i => i.id == id);
+    if (!item) return;
+
+    const newQty = (parseFloat(item._qty) || 0) - delta;
+    if (newQty < 0) {
+        showToast("Количество к списанию превышает остаток", "error");
+        return;
+    }
+
+    const newTotal = newQty * (parseFloat(item._price) || 0);
+
+    // Оптимистичное обновление UI
+    item._qty = newQty;
+    item['Кол-во'] = newQty;
+    item._total = newTotal;
+    item['Стоимость'] = newTotal;
+
+    if (currentCategory === item._category || currentCategory === 'Дашборд') {
+        if (currentCategory !== 'Дашборд') {
+            tableData = [...parsedData[currentCategory].items];
+            renderTable(currentCategory);
+        }
+        updateDashboard();
+    }
+
+    const formData = new FormData();
+    formData.append('id', id);
+    formData.append('category', item._category);
+    formData.append('name', item['Наименование '] || item['Наименование']);
+    formData.append('characteristics', item['Характеристики'] || '');
+    formData.append('width', item['Ширина'] || '');
+    formData.append('height', item['Длина/Высота'] || '');
+    formData.append('quantity', newQty);
+    formData.append('price', item._price || 0);
+    formData.append('total', newTotal);
+    formData.append('note', item['Примечание'] || '');
+
+    fetch('api.php?action=updateItem', {
+        method: 'POST',
+        body: formData
+    }).then(res => res.json()).then(result => {
+        if (result.error) throw new Error(result.error);
+        logTransaction(item['Наименование '] || item['Наименование'], item._category, 'writeoff', -delta, newQty, note);
+        closeWriteOffModal();
+        showToast("Товар успешно списан", "success");
+    }).catch(err => {
+        console.error("writeoff error:", err);
+        showToast("Ошибка при списании", "error");
     });
 }
 

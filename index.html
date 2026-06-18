@@ -531,30 +531,46 @@
         </div>
     </div>
 
+    <!-- Модальное окно списания -->
+    <div id="writeoff-modal"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[9999] flex items-center justify-center transition-opacity opacity-0">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden transform transition-all scale-95 border border-slate-200"
+            id="writeoff-modal-content">
+            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg">Списание товара</h3>
+                <button onclick="closeWriteOffModal()"
+                    class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <input type="hidden" id="writeoff-item-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Количество к списанию *</label>
+                    <input type="number" step="any" id="writeoff-qty" min="0.01"
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Причина / Примечание</label>
+                    <textarea id="writeoff-note" rows="2" placeholder="Например: брак, истек срок годности..."
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors"></textarea>
+                </div>
+            </div>
+            <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                <button onclick="closeWriteOffModal()"
+                    class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+                    Отмена
+                </button>
+                <button onclick="submitWriteOff()"
+                    class="px-5 py-2 text-sm font-bold text-white bg-amber-500 rounded-lg hover:bg-amber-600 transition-colors shadow-sm flex items-center gap-2">
+                    <i data-lucide="package-minus" class="w-4 h-4"></i>
+                    Списать
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Загрузка скриптов -->
-    <!-- Firebase SDK (Compat Version for simpler migration) -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
-    <script>
-    // === Firebase Config (встроен для совместимости с file://) ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyA5RSjuc8pdnGZ_-4PMoiYCFSssygFVMH0",
-      authDomain: "oko-fbd77.firebaseapp.com",
-      projectId: "oko-fbd77",
-      storageBucket: "oko-fbd77.firebasestorage.app",
-      messagingSenderId: "904158516250",
-      appId: "1:904158516250:web:6578163818a647c05e6da3",
-      databaseURL: "https://oko-fbd77-default-rtdb.europe-west1.firebasedatabase.app"
-    };
-    try {
-      firebase.initializeApp(firebaseConfig);
-      window.db = firebase.firestore();
-      window.storage = firebase.storage();
-    } catch(e) {
-      console.warn('Firebase не удалось инициализировать:', e);
-    }
-    </script>
     <script src="data.js"></script>
     <script src="app.js?v=5"></script>
     <script>
