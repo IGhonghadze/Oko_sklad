@@ -90,9 +90,9 @@
         <aside id="sidebar"
             class="hidden md:flex flex-col w-72 bg-white transition-all duration-300 border-r border-slate-200 h-full z-[100] absolute md:relative shadow-xl md:shadow-none">
             <!-- Sidebar Header -->
-            <div class="p-4 md:p-6 flex items-center justify-between">
+            <div class="p-3 md:p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-[#0f172a] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div class="w-8 h-8 rounded-lg bg-[#0f172a] flex items-center justify-center flex-shrink-0 overflow-hidden">
                         <svg viewBox="0 0 80 80" class="w-full h-full p-1">
                             <text x="40" y="26" font-size="24" text-anchor="middle" fill="#29B489" font-family="Arial" font-weight="900">ОКО</text>
                             <rect x="16" y="30" width="48" height="44" rx="2" fill="none" stroke="#2d6b55" stroke-width="2.5"/>
@@ -133,27 +133,15 @@
             <div class="flex-1 overflow-y-auto px-3 py-4 custom-scrollbar">
                 <div id="nav-main">
                     <!-- Dashboard icon -->
-                    <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl mb-1 text-sm sidebar-item active" id="nav-dash" onclick="showDashboard()">
-                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span class="font-medium">Дашборд Склада</span>
+                    <button class="w-full flex items-center gap-3 px-3 py-2 rounded-lg mb-1 text-sm sidebar-item active" id="nav-dash" onclick="showDashboard()">
+                        <i data-lucide="pie-chart" class="w-5 h-5"></i><span class="font-medium">Дашборд Склада</span>
                     </button>
                     <button id="nav-history" onclick="showHistory()"
-                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm sidebar-item mb-1">
-                        <i data-lucide="history" class="w-5 h-5"></i>
+                        class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm sidebar-item mb-1">
+                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
                         <span class="font-medium">Журнал операций</span>
                     </button>
-                    <div class="mt-4 mb-2 px-3" id="nav-categories-header">
-                        <p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Переходы</p>
-                    </div>
-                    <a href="https://ighonghadze.github.io/Oko_calc/Oko/index.html" target="_blank"
-                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm sidebar-item mb-1 text-brand-secondary font-semibold hover:bg-slate-100 transition-colors">
-                        <i data-lucide="calculator" class="w-5 h-5"></i>
-                        <span class="font-medium">Калькулятор</span>
-                    </a>
-                    <a href="http://127.0.0.1:5001" 
-                        class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm sidebar-item mb-1 text-blue-600 font-semibold hover:bg-slate-100 transition-colors">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                        <span class="font-medium">CRM</span>
-                    </a>
+                    
                 </div>
                 
                 <div id="nav-categories">
@@ -201,7 +189,7 @@
             </div>
 
             <!-- MAIN HEADER -->
-            <header class="bg-white px-4 md:px-6 py-2.5 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 z-10 shadow-sm flex-shrink-0">
+            <header class="bg-white px-4 py-2 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 z-10 shadow-sm flex-shrink-0">
                 <div class="flex items-center gap-4 w-full sm:w-auto justify-between">
                     <div>
                         <h2 class="text-xl font-bold text-slate-800 leading-tight" id="current-view-title">Дашборд</h2>
@@ -217,7 +205,7 @@
                     <div class="relative w-full group">
                         <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-brand-primary transition-colors"></i>
                         <input type="text" id="global-search" placeholder="Умный поиск (название, размер, цвет)..." autocomplete="off"
-                            class="w-full pl-9 pr-16 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all shadow-inner placeholder-slate-400">
+                            class="w-full pl-9 pr-16 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all shadow-inner placeholder-slate-400">
                         
                         <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                             <span class="hidden sm:inline-flex items-center justify-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-white border border-slate-200 text-slate-400 pointer-events-none shadow-sm">Ctrl+K</span>
@@ -337,7 +325,7 @@
                     class="hidden flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
 
                     <!-- Table Actions -->
-                    <div class="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50 flex flex-col xl:flex-row gap-3 justify-between items-start xl:items-center min-h-[48px]">
+                    <div class="px-4 py-1.5 border-b border-slate-100 bg-slate-50/50 flex flex-col xl:flex-row gap-3 justify-between items-start xl:items-center min-h-[48px]">
                         <div id="search-filters" class="flex items-center gap-2 overflow-x-auto w-full pb-1 xl:pb-0 custom-scrollbar hidden flex-shrink-0 max-w-full">
                             <!-- Category chips injected here -->
                         </div>
@@ -395,7 +383,7 @@
                 <div id="view-history" class="hidden flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-slide-up">
                     <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                         <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="history" class="w-5 h-5 text-brand-primary"></i>
+                            <i data-lucide="clipboard-list" class="w-5 h-5 text-brand-primary"></i>
                             История операций
                         </h3>
                         <button onclick="loadHistory()" class="p-2 hover:bg-slate-200 rounded-lg transition-colors">

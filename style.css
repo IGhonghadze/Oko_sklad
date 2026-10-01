@@ -229,11 +229,11 @@ body.modal-open {
 }/* === COMPACT UI SYSTEM === */
 /* Density Options */
 #data-table.table-compact tbody td {
-    padding: 0.35rem 0.75rem;
+    padding: 0.2rem 0.5rem;
     font-size: 0.8125rem;
 }
 #data-table.table-compact thead th {
-    padding: 0.5rem 0.75rem;
+    padding: 0.3rem 0.5rem;
 }
 #data-table.table-compact .img-preview {
     width: 32px;
