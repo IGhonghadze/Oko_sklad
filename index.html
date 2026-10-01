@@ -600,7 +600,7 @@
 
     <!-- Загрузка скриптов -->
     <script src="data.js"></script>
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
     <script>
         // Force clear old service worker caches and re-register
         if ('serviceWorker' in navigator) {
@@ -622,7 +622,7 @@
                 return Promise.all(unregisterPromises);
             }).then(() => {
                 // Step 3: Register new SW
-                navigator.serviceWorker.register('./sw.js?v=5').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=6').then(reg => {
                     console.log('New SW registered!', reg);
                 }).catch(err => {
                     console.log('SW registration failed:', err);
