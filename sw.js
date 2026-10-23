@@ -1,5 +1,5 @@
 // Oko Sklad — Service Worker v14 (no-cache for JS/HTML)
-const CACHE_NAME = 'oko-sklad-v17';
+const CACHE_NAME = 'oko-sklad-v18';
 
 // Only cache external CDN libraries, NOT our own code
 const STATIC_ASSETS = [

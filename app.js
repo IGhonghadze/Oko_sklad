@@ -313,6 +313,9 @@ function selectSuggestion(item) {
 
     const dropdown = document.getElementById('name-suggestions-dropdown');
     if (dropdown) dropdown.classList.add('hidden');
+    currentDetectedDuplicate = null;
+    hideDuplicateBanner();
+    checkDuplicateOnInput();
 }
 
 function detectDimMode(item) {
@@ -392,12 +395,316 @@ function closePhotoModal() {
     }, 200);
 }
 
+
+// === Умное обнаружение дубликатов и объединение позиций ===
+let currentDetectedDuplicate = null;
+let pendingForceSave = false;
+
+function normalizeDim(val) {
+    if (val === null || val === undefined) return '';
+    let s = String(val).trim().toLowerCase();
+    if (!s) return '';
+    // Если длина указана в метрах (например "2 м" или "2.5 м", но не "мм")
+    if (s.includes('м') && !s.includes('мм')) {
+        const num = parseFloat(s.replace(',', '.').replace(/[^\d.]/g, ''));
+        if (!isNaN(num)) return String(Math.round(num * 1000));
+    }
+    const num = parseFloat(s.replace(',', '.').replace(/[^\d.]/g, ''));
+    return isNaN(num) ? s : String(num);
+}
+
+function isNameSimilar(cand, existing) {
+    if (!cand || !existing) return false;
+    if (cand === existing) return true;
+    const keywords = ['подоконник', 'отлив', 'уголок', 'нащельник', 'доводчик', 'ручка', 'сетка'];
+    for (let i = 0; i < keywords.length; i++) {
+        const kw = keywords[i];
+        if (cand.includes(kw) && existing.includes(kw)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function findDuplicateItem(candidate, excludeId = null) {
+    if (!candidate || !candidate.name || !Array.isArray(allItems) || allItems.length === 0) return null;
+
+    const normStr = s => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    const candName = normStr(candidate.name);
+    if (!candName || candName.length < 2) return null;
+
+    const candColor = normStr(candidate.color);
+    const candW = normalizeDim(candidate.width);
+    const candH = normalizeDim(candidate.height);
+    const candL = normalizeDim(candidate.length);
+
+    return allItems.find(item => {
+        if (excludeId && String(item.id) === String(excludeId)) return false;
+
+        const iName = normStr(item['Наименование'] || item.name || '');
+        if (!iName) return false;
+
+        // Проверка совпадения названия
+        if (!isNameSimilar(candName, iName)) return false;
+
+        // Проверка цвета (если указан хотя бы у одного)
+        const iColor = normStr(item['Цвет'] || item.color || '');
+        if (candColor || iColor) {
+            if (candColor !== iColor) return false;
+        }
+
+        // Проверка размеров
+        const iW = normalizeDim(item['Ширина'] || item.width);
+        const iH = normalizeDim(item['Высота'] || item['Длина/Высота'] || item.height);
+        const iL = normalizeDim(item['Длина'] || item._length || item.length);
+
+        // Если у кандидата или у позиции есть ширина/глубина, они должны совпадать
+        if (candW || iW) {
+            if (candW !== iW) return false;
+        }
+
+        // Сравнение длины / высоты:
+        const candLengthVal = candL || candH;
+        const iLengthVal = iL || iH;
+
+        if (candLengthVal || iLengthVal) {
+            if (candLengthVal !== iLengthVal) return false;
+        }
+
+        return true;
+    });
+}
+
+function checkDuplicateOnInput() {
+    const itemId = document.getElementById('item-id')?.value;
+    if (itemId) {
+        hideDuplicateBanner();
+        currentDetectedDuplicate = null;
+        return;
+    }
+
+    const name = document.getElementById('item-name')?.value.trim();
+    if (!name || name.length < 2) {
+        hideDuplicateBanner();
+        currentDetectedDuplicate = null;
+        return;
+    }
+
+    const category = document.getElementById('item-category')?.value;
+    const color = document.getElementById('item-color')?.value.trim();
+    const width = document.getElementById('item-width')?.value.trim();
+    const height = document.getElementById('item-height')?.value.trim();
+    const length = document.getElementById('item-length')?.value.trim();
+
+    const candidate = {
+        name,
+        category,
+        color,
+        width,
+        height,
+        length
+    };
+
+    const duplicate = findDuplicateItem(candidate);
+    if (duplicate) {
+        currentDetectedDuplicate = duplicate;
+        showDuplicateBanner(duplicate);
+    } else {
+        currentDetectedDuplicate = null;
+        hideDuplicateBanner();
+    }
+}
+
+function showDuplicateBanner(duplicate) {
+    const banner = document.getElementById('item-duplicate-banner');
+    if (!banner) return;
+
+    const badgeQty = document.getElementById('duplicate-badge-qty');
+    const desc = document.getElementById('duplicate-item-desc');
+    const btnText = document.getElementById('duplicate-btn-text');
+
+    const curQty = parseFloat(duplicate._qty || duplicate['Кол-во'] || 0);
+    const addQty = parseFloat(document.getElementById('item-qty')?.value) || 1;
+    const newQty = curQty + addQty;
+
+    if (badgeQty) badgeQty.textContent = `На складе: ${curQty} шт`;
+
+    const parts = [duplicate['Наименование'] || duplicate.name];
+    if (duplicate['Цвет']) parts.push(duplicate['Цвет']);
+    const w = duplicate['Ширина'];
+    const h = duplicate['Высота'] || duplicate['Длина/Высота'];
+    const l = duplicate['Длина'] || duplicate._length;
+    if (w && (l || h)) {
+        parts.push(`${w}×${l || h} мм`);
+    } else if (w) {
+        parts.push(`${w} мм`);
+    }
+    if (desc) desc.textContent = parts.join(' • ');
+
+    if (btnText) {
+        btnText.textContent = `Прибавить к существующему (+${addQty} шт → станет ${newQty} шт)`;
+    }
+
+    banner.classList.remove('hidden');
+    try { lucide.createIcons({ root: banner }); } catch(e) {}
+}
+
+function hideDuplicateBanner() {
+    const banner = document.getElementById('item-duplicate-banner');
+    if (banner) banner.classList.add('hidden');
+}
+
+function updateDuplicateBannerQty() {
+    if (currentDetectedDuplicate) {
+        showDuplicateBanner(currentDetectedDuplicate);
+    }
+}
+
+function mergeWithDuplicateFromBanner() {
+    if (!currentDetectedDuplicate) return;
+    const addQty = parseFloat(document.getElementById('item-qty')?.value) || 1;
+    const userPrice = parseFloat(document.getElementById('item-price')?.value) || 0;
+    executeMerge(currentDetectedDuplicate, addQty, userPrice);
+}
+
+function viewExistingDuplicate() {
+    if (!currentDetectedDuplicate) return;
+    const targetItem = currentDetectedDuplicate;
+    closeItemModal();
+    setTimeout(() => {
+        openItemDrawer(targetItem);
+    }, 250);
+}
+
+function openDuplicateModal(duplicate, addQty, price) {
+    const modal = document.getElementById('duplicate-modal');
+    if (!modal) return;
+
+    const curQty = parseFloat(duplicate._qty || duplicate['Кол-во'] || 0);
+    const toAdd = parseFloat(addQty) || 1;
+    const total = curQty + toAdd;
+
+    document.getElementById('dup-modal-name').textContent = duplicate['Наименование'] || duplicate.name;
+
+    const paramsDiv = document.getElementById('dup-modal-params');
+    if (paramsDiv) {
+        paramsDiv.innerHTML = '';
+        if (duplicate['Категория'] || duplicate._category) {
+            paramsDiv.innerHTML += `<span class="px-2 py-0.5 bg-slate-200/80 text-slate-700 rounded-md font-bold">${duplicate['Категория'] || duplicate._category}</span>`;
+        }
+        if (duplicate['Цвет']) {
+            paramsDiv.innerHTML += `<span class="px-2 py-0.5 bg-slate-200/80 text-slate-700 rounded-md font-bold">${duplicate['Цвет']}</span>`;
+        }
+        const w = duplicate['Ширина'];
+        const h = duplicate['Высота'] || duplicate['Длина/Высота'];
+        const l = duplicate['Длина'] || duplicate._length;
+        if (w && (l || h)) {
+            paramsDiv.innerHTML += `<span class="px-2 py-0.5 bg-sky-100 text-sky-800 rounded-md font-bold">${w}×${l || h} мм</span>`;
+        }
+    }
+
+    document.getElementById('dup-modal-current-qty').textContent = `${curQty} шт`;
+    document.getElementById('dup-modal-adding-qty').textContent = `+${toAdd} шт`;
+    document.getElementById('dup-modal-total-qty').textContent = `${total} шт`;
+
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    try { lucide.createIcons({ root: modal }); } catch(e) {}
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        document.getElementById('duplicate-modal-content')?.classList.remove('scale-95');
+    }, 10);
+}
+
+function closeDuplicateModal() {
+    const modal = document.getElementById('duplicate-modal');
+    if (!modal) return;
+    modal.classList.add('opacity-0');
+    document.getElementById('duplicate-modal-content')?.classList.add('scale-95');
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 200);
+}
+
+function confirmMergeDuplicate() {
+    if (!currentDetectedDuplicate) return;
+    const addQty = parseFloat(document.getElementById('item-qty')?.value) || 1;
+    const userPrice = parseFloat(document.getElementById('item-price')?.value) || 0;
+    closeDuplicateModal();
+    executeMerge(currentDetectedDuplicate, addQty, userPrice);
+}
+
+function confirmSaveAsNewItem() {
+    closeDuplicateModal();
+    pendingForceSave = true;
+    saveItem();
+    pendingForceSave = false;
+}
+
+function executeMerge(existingItem, addQty, userPrice) {
+    const curQty = parseFloat(existingItem._qty || existingItem['Кол-во'] || 0);
+    const added = parseFloat(addQty) || 1;
+    const newQty = curQty + added;
+    const price = (userPrice > 0) ? userPrice : parseFloat(existingItem._price || existingItem['Цена'] || 0);
+    const total = newQty * price;
+
+    // Оптимистичное обновление
+    existingItem._qty = newQty;
+    existingItem['Кол-во'] = newQty;
+    existingItem._price = price;
+    existingItem['Цена'] = price;
+    existingItem._total = total;
+    existingItem['Стоимость'] = total;
+
+    closeItemModal();
+    hideDuplicateBanner();
+    const savedName = existingItem['Наименование'] || existingItem.name;
+    const savedCat = existingItem._category || existingItem['Категория'] || 'Общая';
+    currentDetectedDuplicate = null;
+
+    if (currentCategory === savedCat || currentCategory === 'Дашборд') {
+        renderTable(currentCategory);
+    }
+    updateDashboard();
+
+    showToast(`✅ Добавлено +${added} шт к позиции «${savedName}». Всего: ${newQty} шт`, 'success');
+
+    // Отправка в API
+    const formData = new FormData();
+    formData.append('id', existingItem.id);
+    formData.append('category', savedCat);
+    formData.append('name', savedName);
+    formData.append('color', existingItem['Цвет'] || existingItem.color || '');
+    formData.append('characteristics', existingItem['Характеристики'] || existingItem.characteristics || '');
+    formData.append('width', existingItem['Ширина'] || existingItem.width || '');
+    formData.append('height', existingItem['Высота'] || existingItem['Длина/Высота'] || existingItem.height || '');
+    formData.append('length', existingItem['Длина'] || existingItem._length || existingItem.length || '');
+    formData.append('quantity', newQty);
+    formData.append('price', price);
+    formData.append('total', total);
+    formData.append('note', existingItem['Примечание'] || existingItem.note || '');
+
+    fetch('api.php?action=updateItem', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (result.error) throw new Error(result.error);
+        logTransaction(savedName, savedCat, 'income', added, newQty, 'Пополнение со склада (объединение позиций)');
+    })
+    .catch(err => {
+        console.error('Ошибка сохранения объединения:', err);
+        showToast('Ошибка при синхронизации с сервером', 'error');
+    });
+}
+
 function selectColorQuick(color) {
     const input = document.getElementById('item-color');
     if (input) {
         input.value = color;
-        input.focus();
     }
+    checkDuplicateOnInput();
 }
 
 function updateItemFormCalc() {
@@ -407,6 +714,7 @@ function updateItemFormCalc() {
     if (totalEl) {
         totalEl.textContent = 'Итого: ' + formatCurrency(qty * price);
     }
+    updateDuplicateBannerQty();
 }
 
 /* ==========================================
@@ -2344,6 +2652,8 @@ function openAddItemModal() {
 
     const dropdown = document.getElementById('name-suggestions-dropdown');
     if (dropdown) dropdown.classList.add('hidden');
+    currentDetectedDuplicate = null;
+    hideDuplicateBanner();
     
     // Reset image preview
     document.getElementById('item-img-preview').innerHTML = `<div class="flex flex-col items-center justify-center text-slate-400 p-4">
@@ -2367,6 +2677,8 @@ function openAddItemModal() {
 }
 
 function editItem(item) {
+    currentDetectedDuplicate = null;
+    hideDuplicateBanner();
     document.getElementById('modal-title').textContent = 'Редактировать товар';
     document.getElementById('item-id').value = item.id;
     populateCategorySelect();
@@ -2386,6 +2698,8 @@ function editItem(item) {
 
     const dropdown = document.getElementById('name-suggestions-dropdown');
     if (dropdown) dropdown.classList.add('hidden');
+    currentDetectedDuplicate = null;
+    hideDuplicateBanner();
 
     detectDimMode(item);
 
@@ -2509,6 +2823,26 @@ function saveItem() {
             nameEl.focus();
             showToast('Введите наименование товара!', 'error');
             return;
+        }
+
+        syncDimensions();
+
+        // Проверка на дубликат при добавлении нового товара
+        if (!isEditing && !pendingForceSave) {
+            const candidate = {
+                name: nameField,
+                category: catField,
+                color: document.getElementById('item-color') ? document.getElementById('item-color').value.trim() : '',
+                width: document.getElementById('item-width')?.value || '',
+                height: document.getElementById('item-height')?.value || '',
+                length: document.getElementById('item-length') ? document.getElementById('item-length').value.trim() : ''
+            };
+            const duplicate = findDuplicateItem(candidate);
+            if (duplicate) {
+                currentDetectedDuplicate = duplicate;
+                openDuplicateModal(duplicate, qtyField, priceField);
+                return;
+            }
         }
 
         // Показываем загрузку
