@@ -8,7 +8,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><ellipse cx='50' cy='58' rx='30' ry='20' fill='none' stroke='%232d7a5e' stroke-width='5'/><circle cx='50' cy='58' r='10' fill='%2329B489'/><circle cx='50' cy='58' r='4' fill='%230f172a'/><text x='50' y='32' font-size='24' text-anchor='middle' fill='%2329B489' font-family='Arial' font-weight='bold'>ОКО</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css?v=18">
+    <link rel="stylesheet" href="style.css?v=19">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5BC2E7">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -487,18 +487,18 @@
         <div class="bg-white w-full sm:rounded-3xl sm:shadow-2xl sm:max-w-xl overflow-hidden transform transition-all scale-95 border border-slate-200 flex flex-col max-h-[94vh] rounded-t-3xl shadow-2xl"
             id="item-modal-content">
             <!-- Header (sticky) -->
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/70 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold">
-                        <i data-lucide="package-plus" id="modal-icon" class="w-5 h-5 text-sky-600"></i>
+            <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70 flex-shrink-0">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold flex-shrink-0">
+                        <i data-lucide="package-plus" id="modal-icon" class="w-4 h-4 text-sky-600"></i>
                     </div>
-                    <div>
-                        <h3 class="font-extrabold text-slate-800 text-lg leading-tight" id="modal-title">Добавить товар</h3>
-                        <p class="text-xs text-slate-500 font-medium">Заполните данные для складского учёта</p>
+                    <div class="min-w-0">
+                        <h3 class="font-extrabold text-slate-800 text-base leading-tight truncate whitespace-nowrap" id="modal-title">Добавить товар</h3>
+                        <p class="text-[11px] text-slate-500 font-medium whitespace-nowrap truncate">Заполните данные для склада</p>
                     </div>
                 </div>
                 <button onclick="closeItemModal()"
-                    class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+                    class="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer flex-shrink-0">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -506,62 +506,62 @@
             <!-- Form wraps body and footer -->
             <div id="item-form" class="flex flex-col flex-1 overflow-hidden">
                 <!-- Body (scrollable) -->
-                <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
+                <div class="p-4 sm:p-5 overflow-y-auto flex-1 space-y-3.5 custom-scrollbar">
                     <input type="hidden" id="item-id" value="">
                     
                     <!-- 1. Категория и Наименование с умным автодополнением -->
-                    <div class="space-y-3">
+                    <div class="space-y-2.5">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5 whitespace-nowrap">
                                 <i data-lucide="folder" class="w-3.5 h-3.5 text-sky-500"></i>
-                                Категория склада <span class="text-rose-500">*</span>
+                                Категория <span class="text-rose-500">*</span>
                             </label>
                             <div class="relative">
-                                <select id="item-category" onchange="handleCategoryChange(this.value)"
-                                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none cursor-pointer pr-10">
+                                <select id="item-category" onchange="handleCategoryChange(this.value); checkDuplicateOnInput();"
+                                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none cursor-pointer pr-9">
                                 </select>
-                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                             </div>
                         </div>
 
                         <div>
-                            <div class="flex items-center justify-between mb-1.5">
-                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                            <div class="flex items-center justify-between mb-1 whitespace-nowrap">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 whitespace-nowrap">
                                     <i data-lucide="tag" class="w-3.5 h-3.5 text-sky-500"></i>
-                                    Наименование позиции <span class="text-rose-500">*</span>
+                                    Наименование <span class="text-rose-500">*</span>
                                 </label>
-                                <span class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
-                                    <i data-lucide="sparkles" class="w-3 h-3"></i> умные подсказки
+                                <span class="text-[11px] text-sky-600 font-semibold flex items-center gap-1 whitespace-nowrap">
+                                    <i data-lucide="sparkles" class="w-3 h-3"></i> подсказки
                                 </span>
                             </div>
 
-                            <!-- Быстрые плашки популярных типов изделий -->
-                            <div class="flex items-center gap-1.5 overflow-x-auto pb-2 custom-scrollbar text-xs mb-2">
-                                <button type="button" onclick="applyQuickType('Отлив', 'Отливы', 'sill')" class="quick-type-chip">
+                            <!-- Быстрые плашки популярных типов изделий (всегда в 1 строку со скроллом) -->
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-xs mb-1.5">
+                                <button type="button" onclick="applyQuickType('Отлив', 'Отливы', 'sill')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="arrow-down-right" class="w-3 h-3 text-sky-500"></i> Отлив
                                 </button>
-                                <button type="button" onclick="applyQuickType('Подоконник', 'Подоконники', 'sill')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Подоконник', 'Подоконники', 'sill')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="minus" class="w-3 h-3 text-emerald-500"></i> Подоконник
                                 </button>
-                                <button type="button" onclick="applyQuickType('Окно ПВХ', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Окно ПВХ', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="layout-grid" class="w-3 h-3 text-blue-500"></i> Окно
                                 </button>
-                                <button type="button" onclick="applyQuickType('Балконная дверь', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Балконная дверь', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="door-closed" class="w-3 h-3 text-indigo-500"></i> Дверь
                                 </button>
-                                <button type="button" onclick="applyQuickType('Уголок', 'Декор жесть', 'angle')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Уголок', 'Декор жесть', 'angle')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="corner-down-right" class="w-3 h-3 text-purple-500"></i> Уголок
                                 </button>
-                                <button type="button" onclick="applyQuickType('Ручка', 'Фурнитура ПВХ', 'none')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Ручка', 'Фурнитура ПВХ', 'none')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="grip" class="w-3 h-3 text-amber-500"></i> Ручка
                                 </button>
-                                <button type="button" onclick="applyQuickType('Доводчик', 'Доводчики', 'none')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Доводчик', 'Доводчики', 'none')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="repeat" class="w-3 h-3 text-rose-500"></i> Доводчик
                                 </button>
-                                <button type="button" onclick="applyQuickType('Сетка москитная', 'Сетки', 'window')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Сетка москитная', 'Сетки', 'window')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="grid" class="w-3 h-3 text-teal-500"></i> Сетка
                                 </button>
-                                <button type="button" onclick="applyQuickType('Нащельник', 'Монтажные материалы', 'angle')" class="quick-type-chip">
+                                <button type="button" onclick="applyQuickType('Нащельник', 'Монтажные материалы', 'angle')" class="quick-type-chip whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="rectangle-horizontal" class="w-3 h-3 text-slate-500"></i> Нащельник
                                 </button>
                             </div>
@@ -569,10 +569,10 @@
                             <!-- Инпут с выпадающим автодополнением -->
                             <div class="relative">
                                 <input type="text" id="item-name" autocomplete="off"
-                                    placeholder="Начните вводить: отлив, подоконник, окно, уголок, ручка..."
+                                    placeholder="Отлив, подоконник, окно, уголок, ручка..."
                                     oninput="handleNameInput(this.value); checkDuplicateOnInput();"
                                     onfocus="handleNameFocus(this.value)"
-                                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
                                 
                                 <!-- Выпадающие подсказки -->
                                 <div id="name-suggestions-dropdown"
@@ -583,136 +583,130 @@
                     </div>
 
                     <!-- 2. Цвет изделия с быстрыми кнопками выбора -->
-                    <div class="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80">
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                    <div class="bg-slate-50/70 p-3 rounded-2xl border border-slate-200/80">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5 whitespace-nowrap">
                             <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-500"></i>
-                            Цвет изделия
+                            Цвет
                         </label>
                         <div class="relative mb-2">
                             <input type="text" id="item-color" placeholder="Белый, антрацит, золотой дуб..." oninput="checkDuplicateOnInput()"
-                                class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
                         </div>
                         <!-- Быстрые плашки выбора цвета -->
                         <div class="flex flex-wrap gap-1.5">
-                            <button type="button" onclick="selectColorQuick('Белый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-300"></span> Белый</button>
-                            <button type="button" onclick="selectColorQuick('Антрацит')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> Антрацит</button>
-                            <button type="button" onclick="selectColorQuick('Коричневый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-800"></span> Коричневый</button>
-                            <button type="button" onclick="selectColorQuick('Золотой дуб')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Золотой дуб</button>
-                            <button type="button" onclick="selectColorQuick('Серый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Серый</button>
-                            <button type="button" onclick="selectColorQuick('Чёрный')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-black"></span> Чёрный</button>
+                            <button type="button" onclick="selectColorQuick('Белый')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-300 flex-shrink-0"></span> Белый</button>
+                            <button type="button" onclick="selectColorQuick('Антрацит')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-700 flex-shrink-0"></span> Антрацит</button>
+                            <button type="button" onclick="selectColorQuick('Коричневый')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-800 flex-shrink-0"></span> Коричневый</button>
+                            <button type="button" onclick="selectColorQuick('Золотой дуб')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-600 flex-shrink-0"></span> Золотой дуб</button>
+                            <button type="button" onclick="selectColorQuick('Серый')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-400 flex-shrink-0"></span> Серый</button>
+                            <button type="button" onclick="selectColorQuick('Чёрный')" class="whitespace-nowrap flex-shrink-0 px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-black flex-shrink-0"></span> Чёрный</button>
                         </div>
                     </div>
 
                     <!-- 3. Адаптивные размеры изделия -->
-                    <div class="bg-sky-50/40 p-4 rounded-2xl border border-sky-200/70" id="dim-container">
+                    <div class="bg-sky-50/40 p-3 rounded-2xl border border-sky-200/70" id="dim-container">
                         <!-- Переключатель формата габаритов -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                            <div class="flex items-center gap-1.5">
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
                                 <i data-lucide="ruler" class="w-4 h-4 text-sky-600"></i>
-                                <span class="text-xs font-bold text-sky-900 uppercase tracking-wider">Габариты изделия</span>
+                                <span class="text-xs font-bold text-sky-900 uppercase tracking-wider">Габариты</span>
                             </div>
                             
                             <!-- Кнопки выбора формата -->
-                            <div class="inline-flex p-0.5 bg-white/90 border border-sky-200/80 rounded-xl text-[11px] font-bold overflow-x-auto max-w-full">
-                                <button type="button" onclick="setDimMode('window')" id="btn-dim-window" class="dim-mode-btn active" title="Для окон, дверей (Ширина × Высота)">
-                                    Окно (Ш × В)
+                            <div class="inline-flex p-0.5 bg-white/90 border border-sky-200/80 rounded-xl text-[11px] font-bold overflow-x-auto max-w-full custom-scrollbar">
+                                <button type="button" onclick="setDimMode('window')" id="btn-dim-window" class="dim-mode-btn active whitespace-nowrap" title="Окна, двери (Ширина × Высота)">
+                                    Окно (Ш×В)
                                 </button>
-                                <button type="button" onclick="setDimMode('sill')" id="btn-dim-sill" class="dim-mode-btn" title="Для отливов, подоконников (Глубина × Длина)">
-                                    Отлив / Подоконник
+                                <button type="button" onclick="setDimMode('sill')" id="btn-dim-sill" class="dim-mode-btn whitespace-nowrap" title="Отливы, подоконники (Глубина × Длина)">
+                                    Отлив / Подок.
                                 </button>
-                                <button type="button" onclick="setDimMode('angle')" id="btn-dim-angle" class="dim-mode-btn" title="Для уголков, профилей (Сечение × Длина)">
-                                    Уголок (20×40, L=2м)
+                                <button type="button" onclick="setDimMode('angle')" id="btn-dim-angle" class="dim-mode-btn whitespace-nowrap" title="Уголки, профили (Сечение × Длина)">
+                                    Уголок (сечение)
                                 </button>
-                                <button type="button" onclick="setDimMode('none')" id="btn-dim-none" class="dim-mode-btn" title="Для штучных деталей без размеров">
+                                <button type="button" onclick="setDimMode('none')" id="btn-dim-none" class="dim-mode-btn whitespace-nowrap" title="Штучные товары">
                                     Без размеров
                                 </button>
                             </div>
                         </div>
 
                         <!-- Режим 1: Окна (Ширина × Высота) -->
-                        <div id="dim-fields-window" class="grid grid-cols-2 gap-3">
+                        <div id="dim-fields-window" class="grid grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">Ширина (Ш)</label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Ширина, мм</label>
                                 <div class="relative">
-                                    <input type="text" id="item-width-win" placeholder="например: 1200" oninput="syncDimensions()"
-                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                    <input type="text" id="item-width-win" placeholder="1200" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">Высота (В)</label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Высота, мм</label>
                                 <div class="relative">
-                                    <input type="text" id="item-height-win" placeholder="например: 1400" oninput="syncDimensions()"
-                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                    <input type="text" id="item-height-win" placeholder="1400" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Режим 2: Отливы / Подоконники (Глубина × Длина) -->
-                        <div id="dim-fields-sill" class="hidden grid grid-cols-2 gap-3">
+                        <div id="dim-fields-sill" class="hidden grid grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                                    <span>Глубина / Полка</span>
-                                    <span class="text-[10px] text-slate-400 font-normal">100, 150, 200...</span>
-                                </label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Глубина, мм</label>
                                 <div class="relative">
-                                    <input type="text" id="item-depth-sill" placeholder="например: 150" oninput="syncDimensions()"
-                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                    <input type="text" id="item-depth-sill" placeholder="150" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                                    <span>Длина изделия</span>
-                                    <span class="text-[10px] text-slate-400 font-normal">2000 мм (2 м)</span>
-                                </label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Длина, мм/м</label>
                                 <div class="relative">
-                                    <input type="text" id="item-length-sill" placeholder="например: 2000 или 2 м" oninput="syncDimensions()"
-                                        class="w-full pl-3 pr-11 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм/м</span>
+                                    <input type="text" id="item-length-sill" placeholder="2000 или 2 м" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-10 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм/м</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Режим 3: Уголки / Профили (Сечение × Длина) -->
-                        <div id="dim-fields-angle" class="hidden space-y-2.5">
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <div id="dim-fields-angle" class="hidden space-y-2">
+                            <div class="grid grid-cols-3 gap-2">
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Полка 1 (Ширина)</label>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Полка 1, мм</label>
                                     <div class="relative">
                                         <input type="text" id="item-angle-w" placeholder="20" oninput="syncDimensions()"
-                                            class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                            class="w-full pl-2.5 pr-7 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм</span>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Полка 2 (Высота)</label>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Полка 2, мм</label>
                                     <div class="relative">
                                         <input type="text" id="item-angle-h" placeholder="40" oninput="syncDimensions()"
-                                            class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                            class="w-full pl-2.5 pr-7 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм</span>
                                     </div>
                                 </div>
-                                <div class="col-span-2 sm:col-span-1">
-                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Длина изделия</label>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Длина, мм/м</label>
                                     <div class="relative">
-                                        <input type="text" id="item-angle-len" placeholder="например: 2 м или 2000" oninput="syncDimensions()"
-                                            class="w-full pl-3 pr-11 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм/м</span>
+                                        <input type="text" id="item-angle-len" placeholder="2 м" oninput="syncDimensions()"
+                                            class="w-full pl-2.5 pr-9 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-bold text-slate-400 pointer-events-none whitespace-nowrap">мм/м</span>
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-[11px] text-sky-800 bg-sky-100/70 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                            <div class="text-[11px] text-sky-800 bg-sky-100/70 px-3 py-1.5 rounded-lg flex items-center gap-1.5 whitespace-nowrap truncate">
                                 <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600 flex-shrink-0"></i>
-                                <span>Результат: <b id="angle-preview-text">сечение 20×40 мм, длина 2 м</b></span>
+                                <span class="truncate">Результат: <b id="angle-preview-text">20×40 мм, L=2 м</b></span>
                             </div>
                         </div>
 
                         <!-- Режим 4: Без размеров (ручки, пена, крепеж) -->
                         <div id="dim-fields-none" class="hidden text-center py-2 text-slate-500 text-xs">
                             <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500 mx-auto mb-1"></i>
-                            <span>Штучный / комплектный товар — фиксированные размеры не требуются</span>
+                            <span class="whitespace-nowrap">Штучный товар (размеры не требуются)</span>
                         </div>
 
                         <!-- Скрытые унифицированные поля -->
@@ -724,39 +718,39 @@
 
                     <!-- 4. Характеристики / Описание -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5 whitespace-nowrap">
                             <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i>
-                            Характеристики / Модель / Профиль
+                            Характеристики
                         </label>
-                        <input type="text" id="item-chars" placeholder="Например: 70мм, 3 стекла, поворот/откид, Siegenia..."
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                        <input type="text" id="item-chars" placeholder="70мм, 3 стекла, Siegenia..."
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
                     </div>
 
-                                        <!-- Баннер обнаружения дубликата на складе -->
-                    <div id="item-duplicate-banner" class="hidden bg-amber-50 border border-amber-200/90 rounded-2xl p-3.5 mb-3 transition-all animate-fadeIn">
-                        <div class="flex items-start gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 mt-0.5 shadow-2xs">
+                    <!-- Баннер обнаружения дубликата на складе -->
+                    <div id="item-duplicate-banner" class="hidden bg-amber-50 border border-amber-200/90 rounded-2xl p-3 mb-2 transition-all animate-fadeIn">
+                        <div class="flex items-start gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0 shadow-2xs">
                                 <i data-lucide="layers" class="w-4 h-4 text-amber-700"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-1">
-                                    <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                                <div class="flex items-center justify-between gap-1 whitespace-nowrap">
+                                    <span class="text-xs font-bold text-amber-900 flex items-center gap-1.5 whitespace-nowrap">
                                         <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-amber-600"></i>
-                                        Такой товар уже есть на складе!
+                                        Товар уже есть на складе
                                     </span>
-                                    <span class="text-[11px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full" id="duplicate-badge-qty">
-                                        На складе: 1 шт
+                                    <span class="text-[11px] font-extrabold text-amber-800 bg-amber-200/80 px-2 py-0.5 rounded-full whitespace-nowrap" id="duplicate-badge-qty">
+                                        Остаток: 1 шт
                                     </span>
                                 </div>
-                                <p class="text-xs text-amber-800 mt-1 font-medium truncate" id="duplicate-item-desc">
+                                <p class="text-xs text-amber-800 mt-0.5 font-medium truncate whitespace-nowrap" id="duplicate-item-desc">
                                     Подоконник • Белый • 200×1000 мм
                                 </p>
-                                <div class="mt-2.5 flex flex-wrap items-center gap-2">
-                                    <button type="button" onclick="mergeWithDuplicateFromBanner()" class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+                                <div class="mt-2 flex items-center gap-2 whitespace-nowrap">
+                                    <button type="button" onclick="mergeWithDuplicateFromBanner()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap flex-shrink-0">
                                         <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i>
-                                        <span id="duplicate-btn-text">Прибавить к существующему (+1 шт)</span>
+                                        <span id="duplicate-btn-text" class="whitespace-nowrap">Прибавить (+1 шт → 2 шт)</span>
                                     </button>
-                                    <button type="button" onclick="viewExistingDuplicate()" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-xl text-xs font-semibold transition-colors cursor-pointer">
+                                    <button type="button" onclick="viewExistingDuplicate()" class="px-2.5 py-1.5 bg-white hover:bg-amber-100 text-amber-900 border border-amber-300/80 rounded-xl text-xs font-semibold transition-colors cursor-pointer whitespace-nowrap flex-shrink-0">
                                         Посмотреть
                                     </button>
                                 </div>
@@ -765,58 +759,58 @@
                     </div>
 
                     <!-- 5. Остаток и Цена с авто-расчётом суммы -->
-                    <div class="bg-emerald-50/50 p-3.5 rounded-2xl border border-emerald-200/80">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5">
+                    <div class="bg-emerald-50/50 p-3 rounded-2xl border border-emerald-200/80">
+                        <div class="flex items-center justify-between mb-2 whitespace-nowrap">
+                            <div class="flex items-center gap-1.5 whitespace-nowrap">
                                 <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
-                                <span class="text-xs font-bold text-emerald-900 uppercase tracking-wider">Склад и Стоимость</span>
+                                <span class="text-xs font-bold text-emerald-900 uppercase tracking-wider whitespace-nowrap">Стоимость и остаток</span>
                             </div>
-                            <span id="item-calc-total" class="text-xs font-extrabold text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">Итого: 0 ₽</span>
+                            <span id="item-calc-total" class="text-xs font-extrabold text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full whitespace-nowrap">Итого: 0 ₽</span>
                         </div>
-                        <div class="grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-2 gap-2.5">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">Остаток на складе <span class="text-rose-500">*</span></label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Остаток, шт <span class="text-rose-500">*</span></label>
                                 <div class="relative">
                                     <input type="number" step="any" min="0" id="item-qty" placeholder="1" oninput="updateItemFormCalc()"
-                                        class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">шт</span>
+                                        class="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">шт</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-700 mb-1">Цена за штуку <span class="text-rose-500">*</span></label>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 whitespace-nowrap">Цена за шт, ₽ <span class="text-rose-500">*</span></label>
                                 <div class="relative">
                                     <input type="number" step="any" min="0" id="item-price" placeholder="0" oninput="updateItemFormCalc()"
-                                        class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
-                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">₽</span>
+                                        class="w-full pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none whitespace-nowrap">₽</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- 6. Фото товара (Большой удобный блок) -->
+                    <!-- 6. Фото товара -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                            <span class="flex items-center gap-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center justify-between whitespace-nowrap">
+                            <span class="flex items-center gap-1.5 whitespace-nowrap">
                                 <i data-lucide="image" class="w-3.5 h-3.5 text-sky-500"></i>
-                                Фотография товара
+                                Фотография
                             </span>
-                            <span class="text-[11px] text-slate-400 font-normal">до 10 МБ</span>
+                            <span class="text-[11px] text-slate-400 font-normal whitespace-nowrap">до 10 МБ</span>
                         </label>
-                        <div class="border-2 border-dashed border-slate-200 hover:border-brand-primary rounded-2xl p-3 bg-slate-50/50 hover:bg-sky-50/20 transition-all text-center group">
-                            <div id="item-img-preview" class="w-full min-h-[120px] max-h-[220px] rounded-xl flex items-center justify-center overflow-hidden bg-white border border-slate-200/80 shadow-2xs mb-2.5">
-                                <div class="flex flex-col items-center justify-center text-slate-400 p-4">
-                                    <i data-lucide="image-plus" class="w-8 h-8 text-slate-300 group-hover:text-brand-primary mb-1.5 transition-colors"></i>
-                                    <p class="text-xs font-semibold text-slate-600">Нажмите для выбора фото</p>
-                                    <p class="text-[11px] text-slate-400">JPG, PNG, WEBP</p>
+                        <div class="border-2 border-dashed border-slate-200 hover:border-brand-primary rounded-2xl p-2.5 bg-slate-50/50 hover:bg-sky-50/20 transition-all text-center group">
+                            <div id="item-img-preview" class="w-full min-h-[90px] max-h-[160px] rounded-xl flex items-center justify-center overflow-hidden bg-white border border-slate-200/80 shadow-2xs mb-2">
+                                <div class="flex flex-col items-center justify-center text-slate-400 p-3">
+                                    <i data-lucide="image-plus" class="w-7 h-7 text-slate-300 group-hover:text-brand-primary mb-1 transition-colors"></i>
+                                    <p class="text-xs font-semibold text-slate-600 whitespace-nowrap">Нажмите для выбора фото</p>
+                                    <p class="text-[10px] text-slate-400 whitespace-nowrap">JPG, PNG, WEBP</p>
                                 </div>
                             </div>
-                            <div class="flex items-center justify-center gap-2">
-                                <label class="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer active:scale-95">
-                                    <i data-lucide="upload" class="w-4 h-4 text-brand-primary"></i>
+                            <div class="flex items-center justify-center gap-2 whitespace-nowrap">
+                                <label class="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white text-slate-700 border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer active:scale-95 whitespace-nowrap flex-shrink-0">
+                                    <i data-lucide="upload" class="w-3.5 h-3.5 text-brand-primary"></i>
                                     <span>Выбрать фото</span>
                                     <input type="file" id="item-file-input" class="hidden" accept="image/*" onchange="previewImage(this)">
                                 </label>
-                                <button type="button" onclick="removePhoto()" id="btn-remove-photo" class="hidden px-3.5 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95">
+                                <button type="button" onclick="removePhoto()" id="btn-remove-photo" class="hidden px-3 py-1.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap flex-shrink-0">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                     <span>Удалить</span>
                                 </button>
@@ -826,23 +820,23 @@
 
                     <!-- 7. Примечание -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1 flex items-center gap-1.5 whitespace-nowrap">
                             <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-400"></i>
-                            Примечание / Складское место
+                            Примечание
                         </label>
-                        <textarea id="item-note" rows="2" placeholder="Например: Стеллаж 2, ярус 3, остаток с объекта на Ленина..."
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"></textarea>
+                        <textarea id="item-note" rows="2" placeholder="Стеллаж, ярус, комментарий..."
+                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"></textarea>
                     </div>
                 </div>
 
                 <!-- Footer (sticky) -->
-                <div class="px-6 py-3.5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80 flex-shrink-0">
+                <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-2.5 bg-slate-50/80 flex-shrink-0 whitespace-nowrap">
                     <button type="button" onclick="closeItemModal()"
-                        class="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-2xs cursor-pointer">
+                        class="px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-2xs cursor-pointer whitespace-nowrap flex-shrink-0">
                         Отмена
                     </button>
                     <button type="button" id="btn-save-item" onclick="saveItem()"
-                        class="px-6 py-2.5 text-sm font-bold text-white bg-brand-primary hover:bg-[#48b2d6] rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95">
+                        class="px-5 py-2 text-sm font-bold text-white bg-brand-primary hover:bg-[#48b2d6] rounded-xl transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap flex-shrink-0">
                         <i data-lucide="check" class="w-4 h-4"></i>
                         Сохранить
                     </button>
@@ -1111,7 +1105,7 @@
 
     <!-- Загрузка скриптов -->
     <script src="data.js"></script>
-    <script src="app.js?v=18"></script>
+    <script src="app.js?v=19"></script>
     <script>
         // Force clear old service worker caches and re-register
         if ('serviceWorker' in navigator) {
@@ -1133,7 +1127,7 @@
                 return Promise.all(unregisterPromises);
             }).then(() => {
                 // Step 3: Register new SW
-                navigator.serviceWorker.register('./sw.js?v=18').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=19').then(reg => {
                     console.log('New SW registered!', reg);
                 }).catch(err => {
                     console.log('SW registration failed:', err);

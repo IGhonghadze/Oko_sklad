@@ -118,7 +118,7 @@ function syncDimensions() {
             if (sec || len) {
                 prev.textContent = `сечение ${sec || '—'} мм, длина ${len || '—'}`;
             } else {
-                prev.textContent = 'укажите полки (например 20 и 40) и длину (например 2 м)';
+                prev.textContent = '20×40 мм, L=2 м';
             }
         }
     } else if (currentDimMode === 'none') {
@@ -542,7 +542,7 @@ function showDuplicateBanner(duplicate) {
     if (desc) desc.textContent = parts.join(' • ');
 
     if (btnText) {
-        btnText.textContent = `Прибавить к существующему (+${addQty} шт → станет ${newQty} шт)`;
+        btnText.textContent = `Прибавить (+${addQty} шт → ${newQty} шт)`;
     }
 
     banner.classList.remove('hidden');
