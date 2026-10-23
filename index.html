@@ -8,7 +8,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230f172a'/><ellipse cx='50' cy='58' rx='30' ry='20' fill='none' stroke='%232d7a5e' stroke-width='5'/><circle cx='50' cy='58' r='10' fill='%2329B489'/><circle cx='50' cy='58' r='4' fill='%230f172a'/><text x='50' y='32' font-size='24' text-anchor='middle' fill='%2329B489' font-family='Arial' font-weight='bold'>ОКО</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=17">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#5BC2E7">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -29,57 +29,75 @@
 
     <!-- AUTHENTICATION SCREEN -->
     <div id="auth-screen"
-        class="fixed inset-0 z-[99999] flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800 p-4 transition-opacity duration-300">
-        <div
-            class="relative w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl overflow-hidden">
-            <!-- Animated Background Elements -->
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-primary/30 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-brand-secondary/30 rounded-full blur-3xl"></div>
-
-            <div class="relative z-10 flex flex-col items-center">
-                <!-- Logo -->
-                <div
-                    class="w-24 h-24 mb-6 rounded-2xl bg-gradient-to-br from-[#1a3a2e] to-[#0f172a] flex items-center justify-center shadow-lg transform transition-transform hover:scale-105 overflow-hidden border border-white/10">
-                    <svg viewBox="0 0 120 120" class="w-full h-full p-2">
-                        <text x="60" y="38" font-size="32" text-anchor="middle" fill="#29B489" font-family="Arial,sans-serif" font-weight="900">ОКО</text>
-                        <text x="60" y="52" font-size="16" text-anchor="middle" fill="#5BC2E7" font-family="Arial,sans-serif" font-weight="700" letter-spacing="1">СКЛАД</text>
-                        <rect x="30" y="58" width="60" height="55" rx="3" fill="none" stroke="#2d6b55" stroke-width="3.5"/>
-                        <line x1="60" y1="58" x2="60" y2="113" stroke="#2d6b55" stroke-width="2"/>
-                        <ellipse cx="60" cy="86" rx="44" ry="18" fill="none" stroke="#29B489" stroke-width="2.5"/>
-                        <circle cx="60" cy="86" r="10" fill="#0f172a" stroke="#5BC2E7" stroke-width="2"/>
-                        <circle cx="60" cy="86" r="4" fill="#29B489"/>
-                    </svg>
+        class="fixed inset-0 z-[99999] min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 transition-opacity duration-300 overflow-y-auto">
+        <div id="auth-card"
+            class="relative w-full max-w-[420px] bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-10 transform">
+            
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-24 h-24 mb-4 relative">
+                    <img src="logo_new.ico" onerror="this.src='/logo_new.ico'" alt="Oko" class="w-full h-full object-contain drop-shadow-md">
                 </div>
-                <h2 class="text-3xl font-extrabold text-white mb-2 tracking-tight">Вход на Склад</h2>
-                <p class="text-white/60 text-sm mb-8 text-center" id="auth-subtitle">Система управления остатками</p>
+                <h1 class="text-3xl font-black text-slate-900 tracking-tight mb-2">ОКО Склад</h1>
+                <p class="text-slate-500 font-medium">Войдите в ваш аккаунт</p>
+            </div>
 
-                <!-- Auth Form -->
-                <form id="auth-form" onsubmit="handleAuth(event)" class="w-full">
-                    <div class="space-y-4">
+            <form id="auth-form" class="space-y-6" onsubmit="handleAuth(event)">
+                <div id="auth-error" class="hidden bg-red-50 text-red-700 p-3 rounded-xl text-sm text-center font-medium">
+                    <span id="auth-error-msg">Неверный логин или пароль</span>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-slate-700">Логин</label>
                         <div class="relative group">
-                            <i data-lucide="lock"
-                                class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-brand-primary transition-colors"></i>
-                            <input type="password" inputmode="numeric" pattern="[0-9]*" id="auth-password" required placeholder="Пин-код"
-                                class="w-full pl-12 pr-12 py-3.5 bg-black/20 border border-white/10 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary/50 transition-all font-medium text-center tracking-[0.5em] text-lg">
-                            <button type="button" onclick="togglePasswordVisibility()"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors focus:outline-none">
-                                <i data-lucide="eye" id="auth-pwd-icon" class="w-5 h-5"></i>
-                            </button>
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <i data-lucide="user" class="w-5 h-5 text-slate-400 group-focus-within:text-emerald-600 transition-colors"></i>
+                            </div>
+                            <input
+                                type="text"
+                                id="auth-username"
+                                required
+                                class="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-0 focus:border-emerald-600 focus:bg-white text-lg font-medium placeholder:text-slate-400 placeholder:font-normal transition-all"
+                                placeholder="Ваш логин"
+                                autocomplete="username"
+                            >
                         </div>
                     </div>
 
-                    <div id="auth-error"
-                        class="hidden mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-2 text-red-400 text-sm">
-                        <i data-lucide="alert-circle" class="w-4 h-4 mt-0.5 flex-shrink-0"></i>
-                        <span id="auth-error-msg">Неверный пин-код</span>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-bold text-slate-700">Пароль</label>
+                        <div class="relative group">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <i data-lucide="lock" class="w-5 h-5 text-slate-400 group-focus-within:text-emerald-600 transition-colors"></i>
+                            </div>
+                            <input
+                                type="password"
+                                id="auth-password"
+                                required
+                                class="w-full bg-slate-50 border-2 border-slate-200 text-slate-900 rounded-xl pl-12 pr-12 py-3.5 focus:outline-none focus:ring-0 focus:border-emerald-600 focus:bg-white text-lg font-medium tracking-widest placeholder:text-slate-400 placeholder:tracking-normal placeholder:font-normal transition-all"
+                                placeholder="Ваш пароль"
+                                autocomplete="current-password"
+                            >
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-4 cursor-pointer" onclick="togglePasswordVisibility()">
+                                <i data-lucide="eye" id="auth-pwd-icon" class="w-5 h-5 text-slate-400 hover:text-emerald-600 transition-colors"></i>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <button type="submit" id="auth-submit-btn"
-                        class="mt-6 w-full py-3.5 px-4 bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold rounded-xl shadow-[0_0_20px_rgba(91,194,231,0.3)] hover:shadow-[0_0_25px_rgba(41,180,137,0.5)] transform hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary focus:ring-offset-2 focus:ring-offset-slate-800">
-                        Войти
+                <div>
+                    <button
+                        type="submit"
+                        id="auth-submit-btn"
+                        class="w-full relative group overflow-hidden bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                    >
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            <span id="auth-submit-text">Войти</span>
+                            <i data-lucide="log-in" id="auth-submit-icon" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                        </span>
                     </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -90,9 +108,9 @@
         <aside id="sidebar"
             class="hidden md:flex flex-col w-72 bg-white transition-all duration-300 border-r border-slate-200 h-full z-[100] absolute md:relative shadow-xl md:shadow-none">
             <!-- Sidebar Header -->
-            <div class="p-3 md:p-4 flex items-center justify-between">
+            <div class="sidebar-header p-3 md:p-4 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-[#0f172a] flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div class="w-8 h-8 rounded-lg bg-[#0f172a] flex items-center justify-center flex-shrink-0 overflow-hidden shadow-xs">
                         <svg viewBox="0 0 80 80" class="w-full h-full p-1">
                             <text x="40" y="26" font-size="24" text-anchor="middle" fill="#29B489" font-family="Arial" font-weight="900">ОКО</text>
                             <rect x="16" y="30" width="48" height="44" rx="2" fill="none" stroke="#2d6b55" stroke-width="2.5"/>
@@ -106,13 +124,13 @@
                         <p class="text-[10px] uppercase font-bold text-brand-secondary tracking-widest">Управление</p>
                     </div>
                 </div>
-                <button id="toggle-sidebar" class="hidden md:flex text-slate-400 hover:text-brand-primary p-1 rounded-md ml-2" title="Свернуть меню">
-                    <i data-lucide="panel-left-close" class="w-5 h-5"></i>
+                <button id="toggle-sidebar" class="hidden md:flex text-slate-400 hover:text-brand-primary p-1.5 rounded-lg ml-1 hover:bg-slate-100 transition-colors" title="Свернуть / развернуть меню">
+                    <i data-lucide="panel-left-close" id="sidebar-toggle-icon" class="w-5 h-5"></i>
                 </button>
             </div>
 
             <!-- User Profile Area -->
-            <div class="mx-4 mt-4 p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+            <div class="sidebar-user-box mx-3 mt-3 p-2.5 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between transition-all">
                 <div class="flex items-center gap-2 overflow-hidden">
                     <div
                         class="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold flex-shrink-0">
@@ -124,7 +142,7 @@
                     </div>
                 </div>
                 <button onclick="logout()"
-                    class="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-red-50 focus:outline-none"
+                    class="sidebar-logout-btn text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded-md hover:bg-red-50 focus:outline-none"
                     title="Выйти">
                     <i data-lucide="log-out" class="w-4 h-4"></i>
                 </button>
@@ -178,9 +196,6 @@
                     <span class="font-bold text-slate-800 text-lg">Склад</span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <a href="https://ighonghadze.github.io/Oko_calc/Oko/index.html" target="_blank" class="p-2 text-brand-primary hover:bg-slate-100 rounded-lg">
-                        <i data-lucide="calculator" class="w-6 h-6"></i>
-                    </a>
                     <button class="p-2 text-slate-600 hover:bg-slate-100 rounded-lg"
                         onclick="document.getElementById('sidebar').classList.remove('hidden'); document.getElementById('sidebar').classList.add('flex'); document.getElementById('mobile-overlay').classList.remove('hidden');">
                         <i data-lucide="menu" class="w-6 h-6"></i>
@@ -215,9 +230,14 @@
                         </div>
                     </div>
                     <!-- Export Btn -->
-                    <button class="hidden md:flex items-center gap-2 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-brand-primary transition-all shadow-sm text-sm font-medium flex-shrink-0">
+                    <button class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 hover:text-brand-primary transition-all shadow-sm text-sm font-medium flex-shrink-0">
                         <i data-lucide="download" class="w-4 h-4"></i>
                         Экспорт
+                    </button>
+                    <!-- Add Item Btn -->
+                    <button onclick="openAddItemModal()" class="flex items-center gap-1.5 px-3 py-1.5 bg-brand-primary text-white rounded-lg hover:bg-brand-secondary transition-colors shadow-sm text-sm font-semibold flex-shrink-0 cursor-pointer" title="Добавить новый товар">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        <span>Добавить товар</span>
                     </button>
                 </div>
             </header>
@@ -226,98 +246,125 @@
             <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-slate-50/50 relative" id="main-content-scroll">
 
                 <!-- DASHBOARD VIEW -->
-                <div id="view-dashboard" class="space-y-8">
+                <div id="view-dashboard" class="space-y-4 max-w-7xl mx-auto">
                     
-
-
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Статистика склада</h3>
+                    <!-- Верхняя компактная статусная панель -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 p-3 sm:p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                            </span>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Сводка склада</span>
+                            <span class="text-slate-300">|</span>
+                            <span class="text-xs text-slate-500 font-medium" id="dash-live-date">Данные обновлены</span>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap text-xs">
+                            <div id="dash-alert-lowstock" class="hidden px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200/60 rounded-lg font-semibold flex items-center gap-1.5" title="Позиции с остатком менее 5 шт.">
+                                <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-500"></i>
+                                <span><b id="dash-lowstock-count">0</b> заканчиваются</span>
+                            </div>
+                            <div id="dash-alert-outstock" class="hidden px-2.5 py-1 bg-rose-50 text-rose-700 border border-rose-200/60 rounded-lg font-semibold flex items-center gap-1.5" title="Позиции с нулевым остатком">
+                                <i data-lucide="alert-circle" class="w-3.5 h-3.5 text-rose-500"></i>
+                                <span><b id="dash-outstock-count">0</b> нет на складе</span>
+                            </div>
+                            <button onclick="loadServerData()" class="p-1.5 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors cursor-pointer" title="Синхронизировать данные">
+                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <!-- Summary Cards -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+                    <!-- Карточки ключевых показателей (KPI Cards - Высокий контраст и глубина) -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5">
                         <!-- Total Value -->
-                        <div
-                            class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div
-                                class="absolute -right-4 -top-4 w-20 h-20 border-4 border-brand-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500">
+                        <div class="bg-gradient-to-br from-white via-white to-emerald-50/50 rounded-xl p-3.5 sm:p-4 border-t-2 border-t-emerald-500 border border-emerald-200/70 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-500 text-white shadow-xs flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="wallet" class="w-5 h-5"></i>
                             </div>
-                            <div class="flex justify-between items-start mb-2 md:mb-4 relative z-10">
-                                <p class="text-[10px] md:text-sm font-medium text-slate-500 leading-tight">Общая стоимость склада</p>
-                                <div class="p-1.5 md:p-2 bg-emerald-50 text-emerald-600 rounded-xl flex-shrink-0 ml-1">
-                                    <i data-lucide="wallet" class="w-4 h-4 md:w-5 md:h-5"></i>
-                                </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] sm:text-[11px] font-bold text-emerald-700 uppercase tracking-wider truncate mb-0.5">Стоимость склада</p>
+                                <h3 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate" id="dash-total-value">0 ₽</h3>
+                                <p class="text-[10px] text-emerald-600 font-semibold truncate flex items-center gap-1">
+                                    <i data-lucide="trending-up" class="w-3 h-3"></i> Все категории
+                                </p>
                             </div>
-                            <h3 class="text-lg md:text-2xl font-bold text-slate-800 mb-0 md:mb-1 truncate" id="dash-total-value">0 ₽</h3>
-                            <p class="text-[10px] md:text-xs text-brand-secondary font-medium flex items-center gap-1 hidden md:flex">
-                                <i data-lucide="trending-up" class="w-3 h-3"></i> Все категории
-                            </p>
                         </div>
 
                         <!-- Total Items -->
-                        <div
-                            class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div
-                                class="absolute -right-4 -top-4 w-20 h-20 border-4 border-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-500">
+                        <div class="bg-gradient-to-br from-white via-white to-sky-50/50 rounded-xl p-3.5 sm:p-4 border-t-2 border-t-sky-500 border border-sky-200/70 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-sky-500 text-white shadow-xs flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="layers" class="w-5 h-5"></i>
                             </div>
-                            <div class="flex justify-between items-start mb-2 md:mb-4 relative z-10">
-                                <p class="text-[10px] md:text-sm font-medium text-slate-500 leading-tight">Товаров в наличии</p>
-                                <div class="p-1.5 md:p-2 bg-blue-50 text-blue-600 rounded-xl flex-shrink-0 ml-1">
-                                    <i data-lucide="layers" class="w-4 h-4 md:w-5 md:h-5"></i>
-                                </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] sm:text-[11px] font-bold text-sky-700 uppercase tracking-wider truncate mb-0.5">В наличии</p>
+                                <h3 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate" id="dash-total-items">0</h3>
+                                <p class="text-[10px] text-sky-600 font-medium truncate">уникальных позиций</p>
                             </div>
-                            <h3 class="text-lg md:text-2xl font-bold text-slate-800 mb-0 md:mb-1" id="dash-total-items">0</h3>
-                            <p class="text-[10px] md:text-xs text-slate-400 font-medium hidden md:block">Уникальных позиций</p>
                         </div>
 
                         <!-- Total Quantity -->
-                        <div
-                            class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div
-                                class="absolute -right-4 -top-4 w-20 h-20 border-4 border-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-500">
+                        <div class="bg-gradient-to-br from-white via-white to-amber-50/50 rounded-xl p-3.5 sm:p-4 border-t-2 border-t-amber-500 border border-amber-200/70 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-amber-500 text-white shadow-xs flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="boxes" class="w-5 h-5"></i>
                             </div>
-                            <div class="flex justify-between items-start mb-2 md:mb-4 relative z-10">
-                                <p class="text-[10px] md:text-sm font-medium text-slate-500 leading-tight">Общее количество</p>
-                                <div class="p-1.5 md:p-2 bg-amber-50 text-amber-600 rounded-xl flex-shrink-0 ml-1">
-                                    <i data-lucide="boxes" class="w-4 h-4 md:w-5 md:h-5"></i>
-                                </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] sm:text-[11px] font-bold text-amber-700 uppercase tracking-wider truncate mb-0.5">Всего единиц</p>
+                                <h3 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate" id="dash-total-qty">0</h3>
+                                <p class="text-[10px] text-amber-600 font-medium truncate">штук на складе</p>
                             </div>
-                            <h3 class="text-lg md:text-2xl font-bold text-slate-800 mb-0 md:mb-1" id="dash-total-qty">0</h3>
-                            <p class="text-[10px] md:text-xs text-slate-400 font-medium hidden md:block">Единиц хранения</p>
                         </div>
 
                         <!-- Categories Count -->
-                        <div
-                            class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm relative overflow-hidden group hover:shadow-md transition-shadow">
-                            <div
-                                class="absolute -right-4 -top-4 w-20 h-20 border-4 border-purple-500/5 rounded-full group-hover:scale-150 transition-transform duration-500">
+                        <div class="bg-gradient-to-br from-white via-white to-purple-50/50 rounded-xl p-3.5 sm:p-4 border-t-2 border-t-purple-500 border border-purple-200/70 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+                            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-purple-500 text-white shadow-xs flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                                <i data-lucide="folder-tree" class="w-5 h-5"></i>
                             </div>
-                            <div class="flex justify-between items-start mb-2 md:mb-4 relative z-10">
-                                <p class="text-[10px] md:text-sm font-medium text-slate-500 leading-tight">Категорий</p>
-                                <div class="p-1.5 md:p-2 bg-purple-50 text-purple-600 rounded-xl flex-shrink-0 ml-1">
-                                    <i data-lucide="folder-tree" class="w-4 h-4 md:w-5 md:h-5"></i>
-                                </div>
+                            <div class="min-w-0 flex-1">
+                                <p class="text-[10px] sm:text-[11px] font-bold text-purple-700 uppercase tracking-wider truncate mb-0.5">Категорий</p>
+                                <h3 class="text-base sm:text-xl font-black text-slate-900 tracking-tight truncate" id="dash-total-categories">0</h3>
+                                <p class="text-[10px] text-purple-600 font-medium truncate">активных разделов</p>
                             </div>
-                            <h3 class="text-lg md:text-2xl font-bold text-slate-800 mb-0 md:mb-1" id="dash-total-categories">18</h3>
-                            <p class="text-[10px] md:text-xs text-slate-400 font-medium hidden md:block">Активных разделов</p>
                         </div>
                     </div>
 
-                    <!-- Category Breakdown -->
-                    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                        <div
-                            class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <i data-lucide="pie-chart" class="w-5 h-5 text-brand-primary"></i>
-                                Состояние категорий
-                            </h3>
+                    <!-- Категории склада (Компактная сетка с переключателем) -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+                        <div class="px-4 py-3 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="layout-grid" class="w-4 h-4 text-brand-primary"></i>
+                                <h3 class="text-sm font-bold text-slate-800">Категории склада</h3>
+                                <span class="text-xs text-slate-400 font-medium" id="dash-cat-summary"></span>
+                            </div>
+                            <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs self-start sm:self-auto" id="dash-sort-pills">
+                                <button onclick="sortDashCategories('sum', this)" class="dash-sort-btn active px-2.5 py-1 rounded-md font-semibold bg-white text-slate-800 shadow-sm transition-all">По сумме</button>
+                                <button onclick="sortDashCategories('qty', this)" class="dash-sort-btn px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800 transition-all">По остаткам</button>
+                                <button onclick="sortDashCategories('count', this)" class="dash-sort-btn px-2.5 py-1 rounded-md font-medium text-slate-500 hover:text-slate-800 transition-all">По позициям</button>
+                            </div>
                         </div>
-                        <div class="p-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" id="dash-category-grid">
-                                <!-- Category cards will be injected here -->
+                        <div class="p-3.5 sm:p-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5" id="dash-category-grid">
+                                <!-- Карточки категорий инжектятся через app.js -->
                             </div>
                         </div>
                     </div>
+
+                    <!-- Компактная полоса последних операций -->
+                    <div class="bg-white rounded-xl border border-slate-200/80 shadow-sm p-3.5 sm:p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="history" class="w-4 h-4 text-slate-500"></i>
+                                <h4 class="text-xs sm:text-sm font-bold text-slate-800">Свежие операции склада</h4>
+                            </div>
+                            <button onclick="showHistory()" class="text-xs text-brand-primary hover:text-brand-secondary font-bold flex items-center gap-1 transition-colors cursor-pointer">
+                                <span>Все операции в журнале</span>
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                        <div id="dash-recent-history" class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                            <!-- Мини-карточки последних операций -->
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- CATEGORY / TABLE VIEW -->
@@ -331,7 +378,11 @@
                         </div>
                         
                         <div class="flex items-center gap-3 w-full xl:w-auto justify-between xl:justify-end flex-shrink-0" id="standard-table-actions">
-                            <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <button onclick="openAddItemModal()" class="px-2.5 py-1 bg-brand-primary text-white text-xs font-bold rounded-md shadow-sm hover:bg-brand-secondary transition-colors inline-flex items-center gap-1.5 cursor-pointer" title="Добавить товар в эту категорию">
+                                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                    <span>Добавить товар</span>
+                                </button>
                                 <div class="px-2.5 py-1 bg-white border border-slate-200 rounded-md text-xs font-medium text-slate-600 shadow-sm inline-flex items-center gap-1.5">
                                     <i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400"></i>
                                     Позиций: <span id="table-count" class="text-slate-800 font-bold">0</span>
@@ -341,14 +392,7 @@
                                     Сумма: <span id="table-sum" class="font-bold">0 ₽</span>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-1 border-l border-slate-200 pl-3 hidden md:flex">
-                                <button id="btn-density-compact" class="p-1 text-brand-primary bg-brand-primary/10 rounded transition-colors" title="Компактный вид">
-                                    <i data-lucide="align-justify" class="w-4 h-4"></i>
-                                </button>
-                                <button id="btn-density-comfort" class="p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded transition-colors" title="Обычный вид">
-                                    <i data-lucide="menu" class="w-4 h-4"></i>
-                                </button>
-                            </div>
+
                         </div>
                     </div>
 
@@ -380,17 +424,50 @@
                 </div>
 
                 <!-- HISTORY VIEW -->
-                <div id="view-history" class="hidden flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-slide-up">
-                    <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                            <i data-lucide="clipboard-list" class="w-5 h-5 text-brand-primary"></i>
-                            История операций
-                        </h3>
-                        <button onclick="loadHistory()" class="p-2 hover:bg-slate-200 rounded-lg transition-colors">
-                            <i data-lucide="rotate-cw" class="w-4 h-4"></i>
-                        </button>
+                <div id="view-history" class="hidden flex flex-col w-full max-w-4xl mx-auto space-y-4 animate-slide-up pb-12">
+                    <!-- Header card -->
+                    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                                    <i data-lucide="clipboard-list" class="w-6 h-6 text-brand-primary"></i>
+                                    Журнал операций
+                                </h2>
+                                <p class="text-xs text-slate-500 mt-0.5">История приходов, списаний, добавлений и удалений товаров</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 rounded-xl text-xs font-semibold text-slate-600">
+                                    <i data-lucide="layers" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    <span id="history-total-count">0</span> записей
+                                </div>
+                                <button onclick="loadHistory(true)" class="p-2 text-slate-500 hover:text-brand-primary hover:bg-slate-100 rounded-xl transition-all shadow-sm border border-slate-200 cursor-pointer" title="Обновить журнал">
+                                    <i data-lucide="rotate-cw" id="history-refresh-icon" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Filters & Search -->
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <!-- Filter Chips -->
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0" id="history-filter-chips">
+                                <button onclick="filterHistory('all', this)" class="history-chip active px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-brand-primary text-white shadow-sm cursor-pointer" data-filter="all">Все</button>
+                                <button onclick="filterHistory('income', this)" class="history-chip px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="income">Приход</button>
+                                <button onclick="filterHistory('outcome', this)" class="history-chip px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="outcome">Списание</button>
+                                <button onclick="filterHistory('add', this)" class="history-chip px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="add">Создание</button>
+                                <button onclick="filterHistory('delete', this)" class="history-chip px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer" data-filter="delete">Удаление</button>
+                            </div>
+
+                            <!-- Search input -->
+                            <div class="relative w-full sm:w-64">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                                <input type="text" id="history-search-input" oninput="searchHistory(this.value)" placeholder="Поиск в журнале..." class="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:border-brand-primary focus:bg-white transition-colors">
+                            </div>
+                        </div>
                     </div>
-                    <div class="p-4 md:p-6" id="history-container">
+
+                    <!-- Operations List Container -->
+                    <div id="history-container" class="space-y-2.5">
                         <!-- History items will be injected here -->
                     </div>
                 </div>
@@ -406,110 +483,350 @@
 
     <!-- Модальное окно: Добавление/Редактирование товара -->
     <div id="item-modal"
-        class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[9999] flex items-end sm:items-center justify-center transition-opacity opacity-0">
-        <div class="bg-white w-full sm:rounded-2xl sm:shadow-xl sm:max-w-lg sm:mx-4 overflow-hidden transform transition-all scale-95 border-t sm:border border-slate-200 flex flex-col max-h-[95vh] sm:max-h-[90vh] rounded-t-2xl"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden z-[99999] flex items-end sm:items-center justify-center transition-opacity opacity-0 p-0 sm:p-4">
+        <div class="bg-white w-full sm:rounded-3xl sm:shadow-2xl sm:max-w-xl overflow-hidden transform transition-all scale-95 border border-slate-200 flex flex-col max-h-[94vh] rounded-t-3xl shadow-2xl"
             id="item-modal-content">
             <!-- Header (sticky) -->
-            <div class="px-5 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
-                <h3 class="font-bold text-slate-800 text-lg" id="modal-title">Редактирование</h3>
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/70 flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center font-bold">
+                        <i data-lucide="package-plus" id="modal-icon" class="w-5 h-5 text-sky-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-extrabold text-slate-800 text-lg leading-tight" id="modal-title">Добавить товар</h3>
+                        <p class="text-xs text-slate-500 font-medium">Заполните данные для складского учёта</p>
+                    </div>
+                </div>
                 <button onclick="closeItemModal()"
-                    class="text-slate-400 hover:text-slate-600 p-2 rounded-lg hover:bg-slate-100 transition-colors">
-                    <i data-lucide="x" class="w-6 h-6"></i>
+                    class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
 
             <!-- Form wraps body and footer -->
             <div id="item-form" class="flex flex-col flex-1 overflow-hidden">
                 <!-- Body (scrollable) -->
-                <div class="p-5 overflow-y-auto flex-1 -webkit-overflow-scrolling-touch space-y-3">
+                <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-4 custom-scrollbar">
                     <input type="hidden" id="item-id" value="">
                     
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Категория *</label>
-                        <select id="item-category"
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors appearance-none cursor-pointer">
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Наименование *</label>
-                        <input type="text" id="item-name"
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Описание</label>
-                        <input type="text" id="item-chars" placeholder="цвет, модель..."
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
+                    <!-- 1. Категория и Наименование с умным автодополнением -->
+                    <div class="space-y-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Ширина</label>
-                            <input type="text" id="item-width" placeholder="мм"
-                                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Высота</label>
-                            <input type="text" id="item-height" placeholder="мм"
-                                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Остаток *</label>
-                            <input type="number" step="any" id="item-qty"
-                                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Цена *</label>
-                            <input type="number" step="any" id="item-price"
-                                class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Примечание</label>
-                        <textarea id="item-note" rows="2"
-                            class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Фото товара</label>
-                        <div class="flex items-center gap-3">
-                            <div id="item-img-preview" class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-200 flex-shrink-0">
-                                <i data-lucide="image" class="w-5 h-5 text-slate-300"></i>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                                <i data-lucide="folder" class="w-3.5 h-3.5 text-sky-500"></i>
+                                Категория склада <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select id="item-category" onchange="handleCategoryChange(this.value)"
+                                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none cursor-pointer pr-10">
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
                             </div>
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2">
-                                    <label class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
-                                        <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                                        <span>Файл</span>
-                                        <input type="file" id="item-file-input" class="hidden" accept="image/*" onchange="previewImage(this)">
-                                    </label>
-                                    <button type="button" onclick="removePhoto()" id="btn-remove-photo" class="hidden px-3 py-1.5 bg-red-50 text-red-500 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors">
-                                         Удалить
-                                    </button>
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i data-lucide="tag" class="w-3.5 h-3.5 text-sky-500"></i>
+                                    Наименование позиции <span class="text-rose-500">*</span>
+                                </label>
+                                <span class="text-[11px] text-sky-600 font-semibold flex items-center gap-1">
+                                    <i data-lucide="sparkles" class="w-3 h-3"></i> умные подсказки
+                                </span>
+                            </div>
+
+                            <!-- Быстрые плашки популярных типов изделий -->
+                            <div class="flex items-center gap-1.5 overflow-x-auto pb-2 custom-scrollbar text-xs mb-2">
+                                <button type="button" onclick="applyQuickType('Отлив', 'Отливы', 'sill')" class="quick-type-chip">
+                                    <i data-lucide="arrow-down-right" class="w-3 h-3 text-sky-500"></i> Отлив
+                                </button>
+                                <button type="button" onclick="applyQuickType('Подоконник', 'Подоконники', 'sill')" class="quick-type-chip">
+                                    <i data-lucide="minus" class="w-3 h-3 text-emerald-500"></i> Подоконник
+                                </button>
+                                <button type="button" onclick="applyQuickType('Окно ПВХ', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip">
+                                    <i data-lucide="layout-grid" class="w-3 h-3 text-blue-500"></i> Окно
+                                </button>
+                                <button type="button" onclick="applyQuickType('Балконная дверь', 'Изделия ПВХ и Алюминий', 'window')" class="quick-type-chip">
+                                    <i data-lucide="door-closed" class="w-3 h-3 text-indigo-500"></i> Дверь
+                                </button>
+                                <button type="button" onclick="applyQuickType('Уголок', 'Декор жесть', 'angle')" class="quick-type-chip">
+                                    <i data-lucide="corner-down-right" class="w-3 h-3 text-purple-500"></i> Уголок
+                                </button>
+                                <button type="button" onclick="applyQuickType('Ручка', 'Фурнитура ПВХ', 'none')" class="quick-type-chip">
+                                    <i data-lucide="grip" class="w-3 h-3 text-amber-500"></i> Ручка
+                                </button>
+                                <button type="button" onclick="applyQuickType('Доводчик', 'Доводчики', 'none')" class="quick-type-chip">
+                                    <i data-lucide="repeat" class="w-3 h-3 text-rose-500"></i> Доводчик
+                                </button>
+                                <button type="button" onclick="applyQuickType('Сетка москитная', 'Сетки', 'window')" class="quick-type-chip">
+                                    <i data-lucide="grid" class="w-3 h-3 text-teal-500"></i> Сетка
+                                </button>
+                                <button type="button" onclick="applyQuickType('Нащельник', 'Монтажные материалы', 'angle')" class="quick-type-chip">
+                                    <i data-lucide="rectangle-horizontal" class="w-3 h-3 text-slate-500"></i> Нащельник
+                                </button>
+                            </div>
+
+                            <!-- Инпут с выпадающим автодополнением -->
+                            <div class="relative">
+                                <input type="text" id="item-name" autocomplete="off"
+                                    placeholder="Начните вводить: отлив, подоконник, окно, уголок, ручка..."
+                                    oninput="handleNameInput(this.value)"
+                                    onfocus="handleNameFocus(this.value)"
+                                    class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                
+                                <!-- Выпадающие подсказки -->
+                                <div id="name-suggestions-dropdown"
+                                    class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto divide-y divide-slate-100">
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 2. Цвет изделия с быстрыми кнопками выбора -->
+                    <div class="bg-slate-50/70 p-3.5 rounded-2xl border border-slate-200/80">
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="palette" class="w-3.5 h-3.5 text-amber-500"></i>
+                            Цвет изделия
+                        </label>
+                        <div class="relative mb-2">
+                            <input type="text" id="item-color" placeholder="Белый, антрацит, золотой дуб..."
+                                class="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                        </div>
+                        <!-- Быстрые плашки выбора цвета -->
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" onclick="selectColorQuick('Белый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-300"></span> Белый</button>
+                            <button type="button" onclick="selectColorQuick('Антрацит')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-700"></span> Антрацит</button>
+                            <button type="button" onclick="selectColorQuick('Коричневый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-800"></span> Коричневый</button>
+                            <button type="button" onclick="selectColorQuick('Золотой дуб')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-amber-600"></span> Золотой дуб</button>
+                            <button type="button" onclick="selectColorQuick('Серый')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Серый</button>
+                            <button type="button" onclick="selectColorQuick('Чёрный')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer flex items-center gap-1.5 shadow-2xs transition-all active:scale-95"><span class="w-2.5 h-2.5 rounded-full bg-black"></span> Чёрный</button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Адаптивные размеры изделия -->
+                    <div class="bg-sky-50/40 p-4 rounded-2xl border border-sky-200/70" id="dim-container">
+                        <!-- Переключатель формата габаритов -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="ruler" class="w-4 h-4 text-sky-600"></i>
+                                <span class="text-xs font-bold text-sky-900 uppercase tracking-wider">Габариты изделия</span>
+                            </div>
+                            
+                            <!-- Кнопки выбора формата -->
+                            <div class="inline-flex p-0.5 bg-white/90 border border-sky-200/80 rounded-xl text-[11px] font-bold overflow-x-auto max-w-full">
+                                <button type="button" onclick="setDimMode('window')" id="btn-dim-window" class="dim-mode-btn active" title="Для окон, дверей (Ширина × Высота)">
+                                    Окно (Ш × В)
+                                </button>
+                                <button type="button" onclick="setDimMode('sill')" id="btn-dim-sill" class="dim-mode-btn" title="Для отливов, подоконников (Глубина × Длина)">
+                                    Отлив / Подоконник
+                                </button>
+                                <button type="button" onclick="setDimMode('angle')" id="btn-dim-angle" class="dim-mode-btn" title="Для уголков, профилей (Сечение × Длина)">
+                                    Уголок (20×40, L=2м)
+                                </button>
+                                <button type="button" onclick="setDimMode('none')" id="btn-dim-none" class="dim-mode-btn" title="Для штучных деталей без размеров">
+                                    Без размеров
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Режим 1: Окна (Ширина × Высота) -->
+                        <div id="dim-fields-window" class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Ширина (Ш)</label>
+                                <div class="relative">
+                                    <input type="text" id="item-width-win" placeholder="например: 1200" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Высота (В)</label>
+                                <div class="relative">
+                                    <input type="text" id="item-height-win" placeholder="например: 1400" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Режим 2: Отливы / Подоконники (Глубина × Длина) -->
+                        <div id="dim-fields-sill" class="hidden grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                                    <span>Глубина / Полка</span>
+                                    <span class="text-[10px] text-slate-400 font-normal">100, 150, 200...</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="item-depth-sill" placeholder="например: 150" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-9 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                                    <span>Длина изделия</span>
+                                    <span class="text-[10px] text-slate-400 font-normal">2000 мм (2 м)</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="item-length-sill" placeholder="например: 2000 или 2 м" oninput="syncDimensions()"
+                                        class="w-full pl-3 pr-11 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм/м</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Режим 3: Уголки / Профили (Сечение × Длина) -->
+                        <div id="dim-fields-angle" class="hidden space-y-2.5">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Полка 1 (Ширина)</label>
+                                    <div class="relative">
+                                        <input type="text" id="item-angle-w" placeholder="20" oninput="syncDimensions()"
+                                            class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Полка 2 (Высота)</label>
+                                    <div class="relative">
+                                        <input type="text" id="item-angle-h" placeholder="40" oninput="syncDimensions()"
+                                            class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм</span>
+                                    </div>
+                                </div>
+                                <div class="col-span-2 sm:col-span-1">
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Длина изделия</label>
+                                    <div class="relative">
+                                        <input type="text" id="item-angle-len" placeholder="например: 2 м или 2000" oninput="syncDimensions()"
+                                            class="w-full pl-3 pr-11 py-2 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                        <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">мм/м</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-sky-800 bg-sky-100/70 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                                <i data-lucide="info" class="w-3.5 h-3.5 text-sky-600 flex-shrink-0"></i>
+                                <span>Результат: <b id="angle-preview-text">сечение 20×40 мм, длина 2 м</b></span>
+                            </div>
+                        </div>
+
+                        <!-- Режим 4: Без размеров (ручки, пена, крепеж) -->
+                        <div id="dim-fields-none" class="hidden text-center py-2 text-slate-500 text-xs">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-500 mx-auto mb-1"></i>
+                            <span>Штучный / комплектный товар — фиксированные размеры не требуются</span>
+                        </div>
+
+                        <!-- Скрытые унифицированные поля -->
+                        <input type="hidden" id="item-width" value="">
+                        <input type="hidden" id="item-height" value="">
+                        <input type="hidden" id="item-length" value="">
+                        <input type="hidden" id="item-dim-mode" value="window">
+                    </div>
+
+                    <!-- 4. Характеристики / Описание -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i>
+                            Характеристики / Модель / Профиль
+                        </label>
+                        <input type="text" id="item-chars" placeholder="Например: 70мм, 3 стекла, поворот/откид, Siegenia..."
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                    </div>
+
+                    <!-- 5. Остаток и Цена с авто-расчётом суммы -->
+                    <div class="bg-emerald-50/50 p-3.5 rounded-2xl border border-emerald-200/80">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1.5">
+                                <i data-lucide="calculator" class="w-3.5 h-3.5 text-emerald-600"></i>
+                                <span class="text-xs font-bold text-emerald-900 uppercase tracking-wider">Склад и Стоимость</span>
+                            </div>
+                            <span id="item-calc-total" class="text-xs font-extrabold text-emerald-800 bg-emerald-100/80 px-2.5 py-0.5 rounded-full">Итого: 0 ₽</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Остаток на складе <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <input type="number" step="any" min="0" id="item-qty" placeholder="1" oninput="updateItemFormCalc()"
+                                        class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">шт</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Цена за штуку <span class="text-rose-500">*</span></label>
+                                <div class="relative">
+                                    <input type="number" step="any" min="0" id="item-price" placeholder="0" oninput="updateItemFormCalc()"
+                                        class="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all">
+                                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 pointer-events-none">₽</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 6. Фото товара (Большой удобный блок) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                            <span class="flex items-center gap-1.5">
+                                <i data-lucide="image" class="w-3.5 h-3.5 text-sky-500"></i>
+                                Фотография товара
+                            </span>
+                            <span class="text-[11px] text-slate-400 font-normal">до 10 МБ</span>
+                        </label>
+                        <div class="border-2 border-dashed border-slate-200 hover:border-brand-primary rounded-2xl p-3 bg-slate-50/50 hover:bg-sky-50/20 transition-all text-center group">
+                            <div id="item-img-preview" class="w-full min-h-[120px] max-h-[220px] rounded-xl flex items-center justify-center overflow-hidden bg-white border border-slate-200/80 shadow-2xs mb-2.5">
+                                <div class="flex flex-col items-center justify-center text-slate-400 p-4">
+                                    <i data-lucide="image-plus" class="w-8 h-8 text-slate-300 group-hover:text-brand-primary mb-1.5 transition-colors"></i>
+                                    <p class="text-xs font-semibold text-slate-600">Нажмите для выбора фото</p>
+                                    <p class="text-[11px] text-slate-400">JPG, PNG, WEBP</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-center gap-2">
+                                <label class="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 bg-white text-slate-700 border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 shadow-2xs transition-colors cursor-pointer active:scale-95">
+                                    <i data-lucide="upload" class="w-4 h-4 text-brand-primary"></i>
+                                    <span>Выбрать фото</span>
+                                    <input type="file" id="item-file-input" class="hidden" accept="image/*" onchange="previewImage(this)">
+                                </label>
+                                <button type="button" onclick="removePhoto()" id="btn-remove-photo" class="hidden px-3.5 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors flex items-center gap-1.5 cursor-pointer active:scale-95">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>Удалить</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 7. Примечание -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="message-square" class="w-3.5 h-3.5 text-slate-400"></i>
+                            Примечание / Складское место
+                        </label>
+                        <textarea id="item-note" rows="2" placeholder="Например: Стеллаж 2, ярус 3, остаток с объекта на Ленина..."
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all"></textarea>
+                    </div>
                 </div>
 
                 <!-- Footer (sticky) -->
-                <div class="px-5 py-3 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/50 flex-shrink-0">
+                <div class="px-6 py-3.5 border-t border-slate-100 flex justify-end gap-3 bg-slate-50/80 flex-shrink-0">
                     <button type="button" onclick="closeItemModal()"
-                        class="px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-sm">
+                        class="px-4 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 hover:text-slate-800 transition-colors shadow-2xs cursor-pointer">
                         Отмена
                     </button>
                     <button type="button" id="btn-save-item" onclick="saveItem()"
-                        class="px-5 py-2.5 text-sm font-bold text-white bg-brand-primary rounded-lg hover:bg-[#48b2d6] transition-colors shadow-sm flex items-center gap-2">
-                        <i data-lucide="save" class="w-4 h-4"></i>
+                        class="px-6 py-2.5 text-sm font-bold text-white bg-brand-primary hover:bg-[#48b2d6] rounded-xl transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95">
+                        <i data-lucide="check" class="w-4 h-4"></i>
                         Сохранить
                     </button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно просмотра увеличенного фото (Lightbox) -->
+    <div id="photo-lightbox-modal" class="fixed inset-0 z-[999999] bg-slate-950/85 backdrop-blur-md hidden flex flex-col items-center justify-center p-4 transition-opacity opacity-0" onclick="closePhotoModal()">
+        <div class="relative max-w-4xl max-h-[90vh] flex flex-col items-center" onclick="event.stopPropagation()">
+            <button onclick="closePhotoModal()" class="absolute -top-12 right-0 text-white/80 hover:text-white p-2 rounded-xl bg-white/10 hover:bg-white/20 transition-all cursor-pointer">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] rounded-2xl shadow-2xl object-contain border border-white/10 bg-black/40">
+            <p id="lightbox-title" class="text-white font-bold text-base mt-3 text-center px-4"></p>
         </div>
     </div>
 
@@ -576,6 +893,116 @@
         </div>
     </div>
 
+    <!-- FLOATING BULK ACTIONS TOOLBAR (Адаптивный для мобильных телефонов) -->
+    <div id="bulk-toolbar" class="hidden">
+        <div class="flex items-center gap-1.5 sm:gap-2 border-r border-slate-700 pr-2 sm:pr-3.5 flex-shrink-0">
+            <div class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 font-extrabold text-xs flex items-center justify-center">
+                <span id="bulk-count">0</span>
+            </div>
+            <span class="text-xs sm:text-sm font-medium text-slate-300 whitespace-nowrap hidden sm:inline">Выбрано</span>
+        </div>
+        
+        <div class="flex items-center gap-1.5 sm:gap-2">
+            <button onclick="openBulkWriteOffModal()" class="p-2 sm:px-3 sm:py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 cursor-pointer" title="Списать с выбранных позиций">
+                <i data-lucide="package-minus" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Списать</span>
+            </button>
+
+            <button onclick="openBulkMoveModal()" class="p-2 sm:px-3 sm:py-1.5 bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 cursor-pointer" title="Переместить в другую категорию">
+                <i data-lucide="folder-input" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Категория</span>
+            </button>
+
+            <button onclick="openBulkDeleteModal()" class="p-2 sm:px-3 sm:py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 rounded-xl text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 cursor-pointer" title="Удалить выбранные позиции">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Удалить</span>
+            </button>
+
+            <button onclick="clearBulkSelection()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-colors cursor-pointer" title="Снять выбор">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Массовое списание -->
+    <div id="bulk-writeoff-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[9999] flex items-center justify-center transition-opacity opacity-0 p-4">
+        <div id="bulk-writeoff-modal-content" class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden transform transition-all scale-95 border border-slate-200">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i data-lucide="package-minus" class="w-5 h-5 text-amber-500"></i>
+                    Массовое списание
+                </h3>
+                <button onclick="closeBulkWriteOffModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-sm text-slate-600">Выбрано позиций: <span id="bulk-writeoff-items-count" class="font-bold text-slate-900">0</span> шт.</p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Списать с каждой позиции (кол-во) *</label>
+                    <input type="number" step="any" min="0.01" id="bulk-writeoff-qty" placeholder="Например: 1" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Причина / Примечание</label>
+                    <input type="text" id="bulk-writeoff-note" placeholder="Монтаж, брак, инвентаризация..." class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors">
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeBulkWriteOffModal()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">Отмена</button>
+                <button onclick="submitBulkWriteOff()" class="px-5 py-2 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 rounded-lg transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Списать
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Массовое перемещение категории -->
+    <div id="bulk-move-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[9999] flex items-center justify-center transition-opacity opacity-0 p-4">
+        <div id="bulk-move-modal-content" class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden transform transition-all scale-95 border border-slate-200">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                    <i data-lucide="folder-input" class="w-5 h-5 text-brand-primary"></i>
+                    Перемещение позиций
+                </h3>
+                <button onclick="closeBulkMoveModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <p class="text-sm text-slate-600">Выбрано позиций для перемещения: <span id="bulk-move-items-count" class="font-bold text-slate-900">0</span></p>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Выберите новую категорию *</label>
+                    <select id="bulk-move-category-select" class="w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-colors cursor-pointer"></select>
+                </div>
+            </div>
+            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeBulkMoveModal()" class="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">Отмена</button>
+                <button onclick="submitBulkMove()" class="px-5 py-2 text-sm font-bold text-white bg-brand-primary hover:bg-[#48b2d6] rounded-lg transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Переместить
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно: Массовое удаление -->
+    <div id="bulk-delete-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden z-[9999] flex items-center justify-center transition-opacity opacity-0 p-4">
+        <div id="bulk-delete-modal-content" class="bg-white w-full max-w-sm rounded-2xl shadow-xl overflow-hidden transform transition-all scale-95 border border-slate-200">
+            <div class="p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="trash-2" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-2">Удалить выбранные позиции?</h3>
+                <p class="text-sm text-slate-500 mb-4">Будет безвозвратно удалено: <span id="bulk-delete-count" class="font-bold text-red-600">0</span> поз.</p>
+                <div class="flex gap-2">
+                    <button onclick="closeBulkDeleteModal()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">Отмена</button>
+                    <button onclick="submitBulkDelete()" class="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors shadow-sm cursor-pointer">Удалить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Item Slide-over Drawer -->
     <div id="drawer-overlay" class="drawer-overlay" onclick="closeDrawer()"></div>
     <div id="item-drawer" class="slide-over-drawer">
@@ -600,7 +1027,7 @@
 
     <!-- Загрузка скриптов -->
     <script src="data.js"></script>
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=17"></script>
     <script>
         // Force clear old service worker caches and re-register
         if ('serviceWorker' in navigator) {
@@ -622,7 +1049,7 @@
                 return Promise.all(unregisterPromises);
             }).then(() => {
                 // Step 3: Register new SW
-                navigator.serviceWorker.register('./sw.js?v=6').then(reg => {
+                navigator.serviceWorker.register('./sw.js?v=17').then(reg => {
                     console.log('New SW registered!', reg);
                 }).catch(err => {
                     console.log('SW registration failed:', err);
